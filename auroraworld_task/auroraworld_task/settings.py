@@ -130,15 +130,26 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 
 # jwt token 관리를 위한 redis chanel
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
+
+# Django 기본 캐시 사용 (Redis 없이 실행 가능)
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",  # Redis 서버 주소
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
     }
 }
+
+# 기본 세션 엔진 사용 (Redis 없이 실행)
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 #jwt token 설정
 SIMPLE_JWT = {
