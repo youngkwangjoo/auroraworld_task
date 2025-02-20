@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("users.urls")),  # 사용자 관련 URL 포함
+    path("feedmanager/", include("feedmanager.urls")),
 ]

@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -189,3 +189,7 @@ TEMPLATES = [
     },
 ]
 
+STATIC_URL = '/static/'  # 정적 파일 URL 경로
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),  # 프로젝트 폴더 안에 static 폴더 경로 지정
+]

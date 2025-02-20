@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 웹 링크 목록</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/auroramain.css' %}">
+</head>
+<body>
+    <div class="top-bar">
+        <span class="username">{{ username }}</span>
+        <button class="logout-btn" onclick="location.href='/users/logout/'">로그아웃</button>
+    </div>
+
+    <h1 class="title">내 웹 링크 목록</h1>
+
+    <div class="feed-box">
+        <ul id="webLinkList"></ul>
+    </div>
+
+    <button class="search-btn" onclick="location.href='/auroramain/'">뒤로 가기</button>
+
+    <script src="{% static 'js/weblinks.js' %}"></script>
+</body>
+</html>

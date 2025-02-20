@@ -3,167 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Aurora Main</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f8f9fa;
-        }
-
-        /* 상단 바 */
-        .top-bar {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .username {
-            font-size: 16px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .logout-btn {
-            padding: 5px 10px;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* 중앙 auroraworld_task */
-        .title {
-            font-size: 50px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        /* 웹 링크 추가 박스 */
-        .feed-box {
-            width: 400px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .feed-box input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .buttons button {
-            flex: 1;
-            padding: 10px;
-            margin: 0 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            color: white;
-        }
-
-        .add-btn { background-color: #4CAF50; }  /* 등록 버튼 */
-        .edit-btn { background-color: #007BFF; }  /* 수정 버튼 */
-        .delete-btn { background-color: #FF5733; }  /* 삭제 버튼 */
-
-        /* 친구 찾기 버튼 스타일 */
-        .search-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* 모달 스타일 */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 20px;
-            width: 50%;
-            text-align: center;
-            border-radius: 10px;
-            position: relative;
-        }
-
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 30px;
-            cursor: pointer;
-            color: red;
-        }
-
-        #searchInput {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        #userList {
-            list-style-type: none;
-            padding: 0;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        #userList li {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .close-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/auroramain.css' %}"> <!-- CSS 파일 연결 -->
 </head>
 <body>
     <!-- 상단 바 (username & 로그아웃 버튼) -->
@@ -177,95 +18,22 @@
 
     <!-- 웹 링크 추가 박스 -->
     <div class="feed-box">
-        <input type="text" id="webLink" placeholder="웹 링크 입력">
+        <input type="text" id="webLinkName" placeholder="웹 링크 이름">
+        <input type="text" id="webLink" placeholder="웹 링크 URL">
+        <select id="webLinkCategory">
+            <option value="personal">개인 즐겨찾기</option>
+            <option value="work">업무 활용 자료</option>
+            <option value="reference">참고 자료</option>
+            <option value="education">교육 및 학습 자료</option>
+            <option value="other">기타</option>
+        </select>
         <div class="buttons">
             <button class="add-btn" onclick="addLink()">등록</button>
-            <button class="edit-btn" onclick="editLink()">수정</button>
-            <button class="delete-btn" onclick="deleteLink()">삭제</button>
         </div>
+        <button class="search-btn" onclick="location.href='/feedmanager/my_links_page/'">내 웹 링크 보기</button>
+
     </div>
 
-    <!-- 친구 찾기 버튼 추가 -->
-    <button class="search-btn" onclick="openSearchModal()">친구 찾기</button>
-
-    <!-- 친구 찾기 모달 -->
-    <div id="searchModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeSearchModal()">&times;</span>
-            <h2>친구 찾기</h2>
-            <input type="text" id="searchInput" placeholder="아이디, 이름, 이메일 검색" onkeyup="searchUsers()">
-            <ul id="userList"></ul>
-            <button class="close-btn" onclick="closeSearchModal()">닫기</button> <!-- 추가된 닫기 버튼 -->
-        </div>
-    </div>
-
-    <script>
-        function addLink() {
-            let link = document.getElementById("webLink").value;
-            if (link.trim() === "") {
-                alert("웹 링크를 입력하세요!");
-                return;
-            }
-            alert("등록 완료: " + link);
-            document.getElementById("webLink").value = "";
-        }
-
-        function editLink() {
-            let link = document.getElementById("webLink").value;
-            if (link.trim() === "") {
-                alert("수정할 웹 링크를 입력하세요!");
-                return;
-            }
-            alert("수정 완료: " + link);
-        }
-
-        function deleteLink() {
-            let link = document.getElementById("webLink").value;
-            if (link.trim() === "") {
-                alert("삭제할 웹 링크를 입력하세요!");
-                return;
-            }
-            alert("삭제 완료: " + link);
-            document.getElementById("webLink").value = "";
-        }
-
-        function openSearchModal() {
-            document.getElementById("searchModal").style.display = "block";
-            fetchUsers();
-        }
-
-        function closeSearchModal() {
-            document.getElementById("searchModal").style.display = "none";
-        }
-
-        function fetchUsers() {
-            fetch("/users/search/")
-                .then(response => response.json())
-                .then(data => {
-                    let userList = document.getElementById("userList");
-                    userList.innerHTML = "";
-                    data.users.forEach(user => {
-                        let li = document.createElement("li");
-                        li.textContent = `${user.username} (${user.name}, ${user.email})`;
-                        userList.appendChild(li);
-                    });
-                })
-                .catch(error => console.error("Error fetching users:", error));
-        }
-
-        function searchUsers() {
-            let input = document.getElementById("searchInput").value.toLowerCase();
-            let users = document.querySelectorAll("#userList li");
-            users.forEach(user => {
-                user.style.display = user.textContent.toLowerCase().includes(input) ? "block" : "none";
-            });
-        }
-
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "Escape") {
-                closeSearchModal();
-            }
-        });
-    </script>
+    <script src="{% static 'js/auroramain.js' %}"></script> <!-- JavaScript 파일 연결 -->
 </body>
 </html>
