@@ -104,8 +104,15 @@ def auroramain_view(request):
 
     try:
         decoded_token = jwt.decode(token, settings.SIMPLE_JWT["SIGNING_KEY"], algorithms=["HS256"])
-        return render(request, "auroramain.html", {"username": decoded_token.get("user_id")})  # ✅ 템플릿에 유저 정보 전달
+        user_id = decoded_token.get("user_id")  # ✅ JWT에서 user_id 가져오기
+        user = CustomUser.objects.get(id=user_id)  # ✅ user_id로 CustomUser 모델에서 username 가져오기
+        return render(request, "auroramain.html", {"username": user.username})  # ✅ 템플릿에 username 전달
     except jwt.ExpiredSignatureError:
         return redirect("signin")  # ✅ 토큰 만료 시 로그인 페이지로 이동
     except jwt.InvalidTokenError:
         return redirect("signin")  # ✅ 유효하지 않은 토큰이면 로그인 페이지로 이동
+
+def search_users(request):
+    """ 전체 사용자 목록을 JSON으로 반환 """
+    users = CustomUser.objects.all().values("id", "username", "email", "name")
+    return JsonResponse({"users": list(users)})

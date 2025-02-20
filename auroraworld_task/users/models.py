@@ -6,8 +6,11 @@ class CustomUser(AbstractUser):
     name = models.CharField(max_length=50)  # 사용자 이름 추가
     username = models.CharField(max_length=30, unique=True)  # 아이디 (Django 기본 username 사용)
 
-    USERNAME_FIELD = "username"  # 기본 로그인 필드를 email로 설정
+    # ✅ 공유 사용자 목록 (ManyToManyField)
+    share_users = models.ManyToManyField("self", symmetrical=False, blank=True, related_name="shared_with")
+
+    USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "name"]
 
     def __str__(self):
-        return self.email
+        return self.username
