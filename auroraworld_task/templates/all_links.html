@@ -20,21 +20,14 @@
 
     <button class="search-btn" onclick="location.href='/users/auroramain/'">뒤로 가기</button>
 
-    <!-- 수정 모달 -->
+    <!-- ✅ 수정 모달 (삭제 버튼 제거) -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h2>웹 링크 수정</h2>
             <input type="hidden" id="editWebLinkId">
             <input type="text" id="editWebLinkName" placeholder="웹 링크 이름">
             <input type="text" id="editWebLinkUrl" placeholder="웹 링크 URL">
-
-            <div class="button-group">
-                <button class="edit-btn" onclick="updateWebLink()">수정</button>
-                <button class="delete-btn" onclick="deleteWebLink()">삭제</button>  
-            </div>
-            
-
-            <!-- 닫기 버튼을 아래에 배치 -->
+            <button class="edit-btn" onclick="updateWebLink()">수정</button>
             <button class="close-btn" onclick="closeEditModal()">닫기</button>
         </div>
     </div>

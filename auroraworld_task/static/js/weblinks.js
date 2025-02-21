@@ -2,12 +2,20 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchWebLinks();
 });
 
+    // ✅ 모달 내에서 Enter 키로 수정 버튼 작동
+    document.getElementById("editModal").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            updateWebLink();
+        }
+    });
+
+
 function fetchWebLinks() {
     fetch("/feedmanager/all_links/")
         .then(response => response.json())
         .then(data => {
             let webLinkList = document.getElementById("webLinkList");
-            webLinkList.innerHTML = ""; // 기존 목록 초기화
+            webLinkList.innerHTML = ""; 
 
             if (data.weblinks.length === 0) {
                 webLinkList.innerHTML = "<p>등록된 웹 링크가 없습니다.</p>";
@@ -16,17 +24,26 @@ function fetchWebLinks() {
 
             data.weblinks.forEach(link => {
                 let li = document.createElement("li");
+                li.classList.add("web-link-item"); // ✅ 스타일 적용
+
                 li.innerHTML = `
-                    <strong>${link.name}</strong> - 
-                    <a href="${link.url}" target="_blank">${link.url}</a> 
-                    (${link.category})
-                    <button onclick="openEditModal(${link.id}, '${link.name}', '${link.url}')">수정</button>
+                    <div class="web-link-info">
+                        <strong>${link.name}</strong> - 
+                        <a href="${link.url}" target="_blank">${link.url}</a> 
+                        (${link.category})
+                    </div>
+                    <div class="web-link-buttons">
+                        <button class="edit-btn" onclick="openEditModal(${link.id}, '${link.name}', '${link.url}')">수정</button>
+                        <button class="delete-btn" onclick="deleteWebLink(${link.id})">삭제</button>
+                    </div>
                 `;
                 webLinkList.appendChild(li);
             });
         })
         .catch(error => console.error("Error fetching web links:", error));
 }
+
+
 
 /* ✅ 웹 링크 수정 기능 (등록 관련 함수 삭제됨) */
 function openEditModal(id, name, url) {
@@ -91,14 +108,7 @@ function closeEditModal() {
     document.getElementById("editModal").style.display = "none";
 }
 
-function deleteWebLink() {
-    let id = document.getElementById("editWebLinkId").value;
-
-    if (!id) {
-        alert("삭제할 웹 링크를 선택하세요!");
-        return;
-    }
-
+function deleteWebLink(id) {
     if (!confirm("정말 삭제하시겠습니까?")) {
         return;  // 사용자가 취소하면 실행하지 않음
     }
@@ -117,7 +127,6 @@ function deleteWebLink() {
     })
     .then(data => {
         alert("웹 링크가 삭제되었습니다!");
-        closeEditModal();
         fetchWebLinks();  // 목록 새로고침
     })
     .catch(error => {
@@ -125,5 +134,6 @@ function deleteWebLink() {
         alert("삭제 중 오류 발생: " + error.message);
     });
 }
+
 
 window.deleteWebLink = deleteWebLink;

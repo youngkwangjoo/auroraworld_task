@@ -47,9 +47,11 @@ body {
     color: #333;
 }
 
-/* 웹 링크 리스트 스타일 */
+/* ✅ 웹 링크 리스트 박스 */
 .feed-box {
-    width: 400px;
+    width: 70%;
+    min-width: 400px;
+    max-width: 90%;
     padding: 20px;
     background-color: white;
     border-radius: 10px;
@@ -59,39 +61,58 @@ body {
     align-items: center;
 }
 
-.feed-box ul {
-    list-style-type: none;
+/* ✅ 웹 링크 항목 리스트 */
+#webLinkList {
     width: 100%;
+    list-style-type: none;
+    padding: 0;
 }
 
-.feed-box li {
+/* ✅ 개별 웹 링크 항목 */
+.web-link-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
     padding: 10px;
     border-bottom: 1px solid #ddd;
+}
+
+/* ✅ 웹 링크 정보 영역 */
+.web-link-info {
+    flex-grow: 1;  /* 🔥 웹 링크 정보가 가변적으로 늘어남 */
+    word-break: break-word; /* 너무 긴 URL도 줄바꿈 처리 */
+}
+
+/* ✅ 웹 링크 목록 내 버튼 스타일 */
+.web-link-buttons {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 5px;
 }
 
-.feed-box li:last-child {
-    border-bottom: none;
-}
-
-/* 버튼 공통 스타일 */
+/* ✅ 버튼 공통 스타일 */
 button {
-    padding: 10px 15px;
+    padding: 6px 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     color: white;
-    font-size: 14px;
+    font-size: 13px;
+    transition: background-color 0.3s ease;
 }
 
-.add-btn { background-color: #4CAF50; }  /* 등록 버튼 (초록색) */
-.search-btn { background-color: #007BFF; }  /* 검색 버튼 (파란색) */
-.edit-btn { background-color: #FF9800; }  /* 수정 버튼 (주황색) */
-.close-btn { background-color: #ff4d4d; }  /* 닫기 버튼 (빨간색) */
+/* ✅ 버튼 색상 */
+.add-btn { background-color: #4CAF50; }  /* 초록색 (등록 버튼) */
+.search-btn { background-color: #007BFF; }  /* 파란색 (검색 버튼) */
+.edit-btn { background-color: #FFA500; }  /* 주황색 (수정 버튼) */
+.delete-btn { background-color: #DC3545; }  /* 빨간색 (삭제 버튼) */
+.close-btn { background-color: #ff4d4d; }  /* 닫기 버튼 */
 
-/* 모달 스타일 */
+/* ✅ 버튼 hover 효과 */
+.edit-btn:hover { background-color: #FF8C00; }  /* 어두운 주황색 */
+.delete-btn:hover { background-color: #C82333; }  /* 어두운 빨간색 */
+
+/* ✅ 모달 스타일 */
 .modal {
     display: none;
     position: fixed;
@@ -112,7 +133,7 @@ button {
     border-radius: 10px;
 }
 
-/* 모달 내부 입력 필드 */
+/* ✅ 모달 내부 입력 필드 */
 .modal-content input {
     width: 100%;
     padding: 10px;
@@ -122,7 +143,7 @@ button {
     font-size: 16px;
 }
 
-/* 모달 닫기 버튼 (X) */
+/* ✅ 모달 닫기 버튼 (X) */
 .close {
     position: absolute;
     top: 15px;
@@ -132,7 +153,7 @@ button {
     color: red;
 }
 
-/* 버튼 가로 정렬 */
+/* ✅ 버튼 가로 정렬 */
 .button-group {
     display: flex;
     justify-content: space-between;
