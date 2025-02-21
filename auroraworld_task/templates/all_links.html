@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>내 웹 링크 목록</title>
+    <title>전체 웹 링크 목록</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/auroramain.css' %}">
+    <link rel="stylesheet" href="{% static 'css/weblinks.css' %}">
 </head>
 <body>
     <div class="top-bar">
@@ -12,13 +12,32 @@
         <button class="logout-btn" onclick="location.href='/users/logout/'">로그아웃</button>
     </div>
 
-    <h1 class="title">내 웹 링크 목록</h1>
+    <h1 class="title">전체 웹 링크 목록</h1>
 
     <div class="feed-box">
         <ul id="webLinkList"></ul>
     </div>
 
-    <button class="search-btn" onclick="location.href='/auroramain/'">뒤로 가기</button>
+    <button class="search-btn" onclick="location.href='/users/auroramain/'">뒤로 가기</button>
+
+    <!-- 수정 모달 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>웹 링크 수정</h2>
+            <input type="hidden" id="editWebLinkId">
+            <input type="text" id="editWebLinkName" placeholder="웹 링크 이름">
+            <input type="text" id="editWebLinkUrl" placeholder="웹 링크 URL">
+
+            <div class="button-group">
+                <button class="edit-btn" onclick="updateWebLink()">수정</button>
+                <button class="delete-btn" onclick="deleteWebLink()">삭제</button>  
+            </div>
+            
+
+            <!-- 닫기 버튼을 아래에 배치 -->
+            <button class="close-btn" onclick="closeEditModal()">닫기</button>
+        </div>
+    </div>
 
     <script src="{% static 'js/weblinks.js' %}"></script>
 </body>

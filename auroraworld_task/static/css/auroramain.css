@@ -81,3 +81,23 @@ body {
     color: white;
     background-color: #4CAF50;
 }
+
+/* 기존 버튼 스타일 */
+.buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+}
+
+/* ✅ 등록 버튼 (초록색) */
+.add-btn {
+    background-color: #4CAF50;
+}
+
+/* ✅ 웹 링크 보기 버튼 (파란색으로 변경) */
+.view-links-btn {
+    background-color: #007BFF;  /* 파란색 */
+}

@@ -21,16 +21,18 @@
         <input type="text" id="webLinkName" placeholder="웹 링크 이름">
         <input type="text" id="webLink" placeholder="웹 링크 URL">
         <select id="webLinkCategory">
-            <option value="personal">개인 즐겨찾기</option>
-            <option value="work">업무 활용 자료</option>
-            <option value="reference">참고 자료</option>
-            <option value="education">교육 및 학습 자료</option>
-            <option value="other">기타</option>
+            <option value="개인 즐겨찾기">개인 즐겨찾기</option>
+            <option value="업무 활용 자료">업무 활용 자료</option>
+            <option value="참고 자료">참고 자료</option>
+            <option value="교육 및 학습 자료">교육 및 학습 자료</option>
+            <option value="기타">기타</option>
         </select>
         <div class="buttons">
             <button class="add-btn" onclick="addLink()">등록</button>
         </div>
-        <button class="search-btn" onclick="location.href='/feedmanager/my_links_page/'">내 웹 링크 보기</button>
+        <div class="buttons">
+            <button class="view-links-btn" onclick="location.href='/feedmanager/all_links_page/'">내 웹 링크 보기</button>
+        </div>
 
     </div>
 

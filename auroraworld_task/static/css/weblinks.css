@@ -1,0 +1,146 @@
+/* 전체 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f8f9fa;
+}
+
+/* 상단 바 */
+.top-bar {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.username {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.logout-btn {
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 제목 스타일 */
+.title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* 웹 링크 리스트 스타일 */
+.feed-box {
+    width: 400px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feed-box ul {
+    list-style-type: none;
+    width: 100%;
+}
+
+.feed-box li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.feed-box li:last-child {
+    border-bottom: none;
+}
+
+/* 버튼 공통 스타일 */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+}
+
+.add-btn { background-color: #4CAF50; }  /* 등록 버튼 (초록색) */
+.search-btn { background-color: #007BFF; }  /* 검색 버튼 (파란색) */
+.edit-btn { background-color: #FF9800; }  /* 수정 버튼 (주황색) */
+.close-btn { background-color: #ff4d4d; }  /* 닫기 버튼 (빨간색) */
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    text-align: center;
+    border-radius: 10px;
+}
+
+/* 모달 내부 입력 필드 */
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* 모달 닫기 버튼 (X) */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 30px;
+    cursor: pointer;
+    color: red;
+}
+
+/* 버튼 가로 정렬 */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.button-group button {
+    flex: 1;
+    margin: 0 5px;
+}

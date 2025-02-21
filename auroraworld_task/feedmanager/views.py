@@ -5,6 +5,9 @@ from feedmanager.models import WebLink
 from users.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
+from .models import WebLink
+
 
 @csrf_exempt
 @login_required
@@ -56,6 +59,48 @@ def my_weblinks(request):
     return JsonResponse({"weblinks": list(weblinks)})
 
 @login_required
-def my_links_page(request):
-    """ ✅ 내 웹 링크 목록 페이지 렌더링 """
+def all_links_view(request):
+    """ ✅ 전체 웹 링크 목록 페이지 렌더링 """
     return render(request, "all_links.html", {"username": request.user.username})
+
+
+@csrf_exempt
+@login_required
+def edit_weblink(request, pk):  # pk 인자 추가
+    """ 웹 링크 수정 API """
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT 요청만 허용됩니다."}, status=405)
+
+    try:
+        # JSON 데이터 파싱
+        data = json.loads(request.body)
+
+        # 웹 링크 객체 찾기 (pk로 검색)
+        weblink = get_object_or_404(WebLink, id=pk)
+
+        # 값 업데이트
+        weblink.name = data.get("name", weblink.name)
+        weblink.url = data.get("url", weblink.url)
+        weblink.save()
+
+        return JsonResponse({"message": "수정 완료", "name": weblink.name, "url": weblink.url})
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "올바른 JSON 형식이 아닙니다."}, status=400)
+
+    except Exception as e:
+        return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
+
+@csrf_exempt
+def delete_weblink(request, pk):
+    """ ✅ DB에서 완전히 삭제하는 웹 링크 삭제 API """
+    if request.method != "DELETE":
+        return JsonResponse({"error": "DELETE 요청만 허용됩니다."}, status=405)
+
+    try:
+        weblink = get_object_or_404(WebLink, id=pk)
+        weblink.delete()  # ✅ DB에서 완전히 삭제!
+        return JsonResponse({"message": "웹 링크가 삭제되었습니다!"})
+
+    except Exception as e:
+        return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
