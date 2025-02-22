@@ -17,10 +17,26 @@
     <div class="feed-box">
         <ul id="webLinkList"></ul>
     </div>
+    <!-- ✅ 공유받은 웹 링크 목록 추가 -->
+    <h2>공유받은 웹 링크</h2>
+    <div class="feed-box">
+        <ul id="sharedWebLinkList"></ul>
+    </div>
 
     <button class="search-btn" onclick="location.href='/users/auroramain/'">뒤로 가기</button>
 
-    <!-- ✅ 수정 모달 (삭제 버튼 제거) -->
+    <!-- 공유 모달 -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeShareModal()">&times;</span>
+            <h2>웹 링크 공유</h2>
+            <input type="text" id="searchUserInput" placeholder="이메일 또는 이름으로 검색" onkeyup="searchUsers()">
+            <ul id="userList" style="display: none;"></ul> <!-- ✅ 기본적으로 숨김 -->
+        </div>
+    </div>
+
+
+    <!-- ✅ 수정 모달 -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h2>웹 링크 수정</h2>

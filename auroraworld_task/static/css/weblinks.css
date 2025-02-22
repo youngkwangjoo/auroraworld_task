@@ -165,3 +165,53 @@ button {
     flex: 1;
     margin: 0 5px;
 }
+
+/* 공유 버튼 스타일 */
+.share-btn {
+    padding: 5px 10px;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 공유 박스 스타일 */
+.share-box {
+    display: none;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* 검색 입력창 */
+.share-box input {
+    width: 80%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* 사용자 리스트 스타일 */
+.share-box ul {
+    list-style-type: none;
+    padding: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.share-box li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.share-box li:hover {
+    background-color: #e9ecef;
+}

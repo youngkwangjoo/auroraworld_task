@@ -6,7 +6,7 @@ from users.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from .models import WebLink
+from .models import WebLink, SharedWebLink
 
 
 @csrf_exempt
@@ -15,7 +15,7 @@ def add_weblink(request):
     """ ✅ 웹 링크 등록 API """
     if request.method == "POST":
         try:
-            data = json.loads(request.body)  # JSON 데이터 파싱
+            data = json.loads(request.body)
             url = data.get("url")
             name = data.get("name")
             category = data.get("category", "personal")  # 기본 카테고리 설정
@@ -25,8 +25,8 @@ def add_weblink(request):
             if not url or not name:
                 return JsonResponse({"error": "웹 링크와 이름을 입력하세요."}, status=400)
 
-            # 기존에 같은 URL이 있는지 확인
-            if WebLink.objects.filter(url=url, is_deleted=False).exists():
+            # ✅ 기존에 같은 사용자가 동일한 URL을 등록했는지 확인
+            if WebLink.objects.filter(url=url, created_by=user).exists():
                 return JsonResponse({"error": "이미 등록된 웹 링크입니다."}, status=400)
 
             # 새 웹 링크 저장
@@ -50,11 +50,12 @@ def add_weblink(request):
     return JsonResponse({"error": "POST 요청만 지원됩니다."}, status=405)
 
 
+
 @login_required
 def my_weblinks(request):
     """ ✅ 로그인한 사용자가 등록한 웹 링크 목록 반환 """
     user = request.user  # 현재 로그인한 사용자
-    weblinks = WebLink.objects.filter(created_by=user, is_deleted=False).values("id", "name", "url", "category", "created_at")
+    weblinks = WebLink.objects.filter(created_by=user).values("id", "name", "url", "category", "created_at")
 
     return JsonResponse({"weblinks": list(weblinks)})
 
@@ -104,3 +105,78 @@ def delete_weblink(request, pk):
 
     except Exception as e:
         return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
+
+@csrf_exempt
+@login_required
+def share_weblink(request):
+    """ ✅ 웹 링크 공유 API """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            webLinkId = data.get("webLinkId")
+            userId = data.get("userId")  # ❗ userId 값이 올바르게 전달되는지 확인
+            sender = request.user  # 공유한 사용자
+
+            print(f"📢 [DEBUG] 공유 요청 - webLinkId: {webLinkId}, userId: {userId}, sender: {sender.username}")
+
+            if not webLinkId or not userId:
+                return JsonResponse({"error": "웹 링크 ID와 사용자 ID가 필요합니다."}, status=400)
+
+            web_link = get_object_or_404(WebLink, id=webLinkId)
+            recipient = get_object_or_404(CustomUser, id=userId)  # ❗ userId로 recipient 찾기
+
+            # ✅ [DEBUG] recipient 값 확인
+            print(f"📢 [DEBUG] 공유받을 사용자: {recipient.username}, ID: {recipient.id}")
+
+            # ✅ 이미 공유된 경우 중복 저장 방지
+            if SharedWebLink.objects.filter(web_link=web_link, sender=sender, recipient=recipient).exists():
+                print("❌ [ERROR] 이미 공유된 웹 링크입니다!")
+                return JsonResponse({"error": "이미 공유된 웹 링크입니다."}, status=400)
+
+            # ✅ 공유 기록 저장
+            shared_link = SharedWebLink.objects.create(web_link=web_link, sender=sender, recipient=recipient)
+
+            print(f"📢 [DEBUG] 저장된 공유 데이터: {shared_link.sender.username} → {shared_link.recipient.username}: {shared_link.web_link.name}")
+
+            return JsonResponse({"message": "웹 링크가 성공적으로 공유되었습니다!"})
+
+        except WebLink.DoesNotExist:
+            return JsonResponse({"error": "웹 링크를 찾을 수 없습니다."}, status=404)
+
+        except CustomUser.DoesNotExist:
+            print("❌ [ERROR] userId에 해당하는 사용자가 존재하지 않습니다!")
+            return JsonResponse({"error": "사용자를 찾을 수 없습니다."}, status=404)
+
+    return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
+
+
+
+
+@login_required
+def shared_links_view(request):
+    """ ✅ 로그인한 사용자가 공유받은 웹 링크 목록 반환 """
+    user = request.user
+
+    # 🔍 SharedWebLink에서 recipient가 현재 로그인한 유저인지 확인
+    shared_links = SharedWebLink.objects.filter(recipient=user).select_related("web_link", "sender")
+
+    # ✅ [DEBUG] 공유받은 링크 개수 확인
+    print(f"📢 [DEBUG] {user.username}의 공유받은 링크 개수: {shared_links.count()}")
+    
+    # ✅ [DEBUG] 공유받은 링크의 전체 데이터 확인
+    print(f"📢 [DEBUG] 공유된 데이터 목록: {list(shared_links.values('web_link__name', 'web_link__url', 'sender__username', 'recipient_id'))}")
+
+    # JSON 반환 데이터
+    shared_list = [
+        {
+            "id": link.web_link.id,
+            "name": link.web_link.name,
+            "url": link.web_link.url,
+            "category": link.web_link.category,
+            "shared_by": link.sender.username,  # ✅ 공유한 사용자 정보 추가
+        }
+        for link in shared_links
+    ]
+    return JsonResponse({"shared_links": shared_list})
+
+
