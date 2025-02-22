@@ -42,57 +42,55 @@ function fetchWebLinks() {
         .catch(error => console.error("Error fetching web links:", error));
 }
 
-// // ✅ 공유 박스 열기 / 닫기 토글
-// function toggleShareBox(webLinkId) {
-//     let shareBox = document.getElementById(`shareBox-${webLinkId}`);
-//     if (shareBox.style.display === "none") {
-//         shareBox.style.display = "block";
-//         fetchUsers(webLinkId);
-//     } else {
-//         shareBox.style.display = "none";
-//     }
-// }
-
-// // ✅ 공유 박스 닫기
-// function closeShareBox(webLinkId) {
-//     document.getElementById(`shareBox-${webLinkId}`).style.display = "none";
-// }
-
 // ✅ 사용자 목록 불러오기
 function fetchUsers(webLinkId) {
     fetch("/users/all_users/")
         .then(response => response.json())
         .then(data => {
-            console.log("✅ 사용자 목록 응답:", data); // JSON 응답 확인
+            console.log("✅ 사용자 목록 응답:", data);
 
             let userList = document.getElementById("userList");
-            userList.innerHTML = ""; // ✅ 기존 목록 초기화
-            userList.style.display = "none"; // ✅ 기본적으로 숨김
+            userList.innerHTML = "";
+            userList.style.display = "none";
 
             data.users.forEach(user => {
-                let username = user.username || "알 수 없음";
-                let name = user.name || "알 수 없음";
-                let email = user.email || "알 수 없음";
-
                 let li = document.createElement("li");
-                li.dataset.username = username;  // ✅ 검색을 위한 데이터 속성 추가
-                li.dataset.name = name;
-                li.dataset.email = email;
-                li.textContent = `${username} (${name}, ${email})`; // ✅ ID 제외하고 표시
+                li.dataset.userId = user.id;  // ✅ userId 올바르게 저장
+                li.dataset.username = user.username || "";
+                li.dataset.name = user.name || "";
+                li.dataset.email = user.email || "";
 
+                li.textContent = `${user.username} (${user.name}, ${user.email})`;
+
+                // ✅ 클릭한 사용자의 ID 확인
                 li.onclick = function () {
-                    shareWebLink(webLinkId, user.id);
+                    console.log(`📢 [DEBUG] 클릭된 사용자 - userId: ${li.dataset.userId}, username: ${li.dataset.username}`);
+
+                    // ✅ 선택한 userId를 searchUserInput에 저장
+                    document.getElementById("searchUserInput").dataset.selectedUserId = parseInt(li.dataset.userId);
+
+                    shareWebLink(webLinkId, parseInt(li.dataset.userId));
                 };
+
                 userList.appendChild(li);
             });
 
-            // ✅ 여기서 userList.style.display = "block"; 를 실행하지 않음
-
+            console.log("📢 업데이트된 사용자 목록:", userList.innerHTML);
         })
         .catch(error => console.error("❌ 사용자 목록 불러오기 실패:", error));
 }
 
 
+
+
+
+// ✅ 클릭된 사용자 음영처리 효과
+function highlightSelection(element) {
+    element.style.backgroundColor = "#d3d3d3"; // 클릭 시 회색 음영 처리
+    setTimeout(() => {
+        element.style.backgroundColor = ""; // 0.3초 후 원래 색상으로 복귀
+    }, 300);
+}
 
 
 function openShareModal(webLinkId) {
@@ -112,47 +110,55 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
-
 // ✅ 사용자 검색 기능 (이메일 또는 이름으로 검색 가능)
 function searchUsers() {
     let input = document.getElementById("searchUserInput").value.toLowerCase();
-    let userList = document.getElementById("userList"); // ✅ 사용자 목록
+    let userList = document.getElementById("userList");
     let users = document.querySelectorAll("#userList li");
 
-    let hasResults = false; // ✅ 검색 결과가 있는지 확인
+    let hasResults = false;
 
     users.forEach(user => {
-        let userText = user.dataset.username.toLowerCase(); // ✅ username으로 기본 검색
-        let userNameText = user.dataset.name.toLowerCase();
-        let userEmailText = user.dataset.email.toLowerCase();
+        let userText = (user.dataset.username || "").toLowerCase();
+        let userNameText = (user.dataset.name || "").toLowerCase();
+        let userEmailText = (user.dataset.email || "").toLowerCase();
 
         if (
-            userText.includes(input) ||  // ✅ 기본 username 검색
-            userNameText.includes(input) || // ✅ 이름(name) 검색
-            userEmailText.includes(input)  // ✅ 이메일(email) 검색
+            userText.includes(input) ||
+            userNameText.includes(input) ||
+            userEmailText.includes(input)
         ) {
             user.style.display = "block";
-            hasResults = true; // ✅ 검색 결과 있음
+            hasResults = true;
+
+            // ✅ 기존 이벤트 제거 후 다시 추가
+            user.onclick = null;
+            user.onclick = function () {
+                let selectedUserId = parseInt(user.dataset.userId);
+                console.log(`📢 [DEBUG] 검색 후 선택된 사용자 - userId: ${selectedUserId}, username: ${user.dataset.username}`);
+
+                // ✅ 선택된 userId를 searchUserInput에 저장
+                document.getElementById("searchUserInput").dataset.selectedUserId = selectedUserId;
+
+                shareWebLink(parseInt(document.getElementById("searchUserInput").dataset.webLinkId), selectedUserId);
+            };
         } else {
             user.style.display = "none";
         }
     });
 
     if (input.length > 0 && hasResults) {
-        userList.style.display = "block"; // ✅ 검색 결과 있으면 목록 표시
+        userList.style.display = "block";
     } else {
-        userList.style.display = "none"; // ✅ 검색 결과 없으면 숨김
+        userList.style.display = "none";
     }
 }
 
 
 
-
-
-
 // ✅ 웹 링크 공유 기능
-function shareWebLink(userId) {
-    let webLinkId = document.getElementById("searchUserInput").dataset.webLinkId;
+function shareWebLink(webLinkId, userId) {
+    console.log(`📢 [DEBUG] 최종 공유 요청 - webLinkId: ${webLinkId}, userId: ${userId}`);
 
     fetch("/feedmanager/share/", {
         method: "POST",
@@ -164,15 +170,20 @@ function shareWebLink(userId) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log("📢 서버 응답:", data);
         if (data.error) {
             alert("공유 실패: " + data.error);
         } else {
             alert("웹 링크가 공유되었습니다!");
             closeShareModal();
+            fetchSharedWebLinks();
         }
     })
-    .catch(error => console.error("Error sharing web link:", error));
+    .catch(error => console.error("❌ 공유 중 오류 발생:", error));
 }
+
+
+
 
 
 // ✅ 웹 링크 수정 기능
@@ -315,11 +326,10 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchSharedWebLinks();
 });
 
-// ✅ 웹 링크 공유 기능 (디버깅 추가)
-function shareWebLink(userId) {
-    let webLinkId = document.getElementById("searchUserInput").dataset.webLinkId;
+function shareWebLink(webLinkId, userId) {
+    let selectedUserId = parseInt(document.getElementById("searchUserInput").dataset.selectedUserId);
 
-    console.log(`📢 공유 요청: 웹 링크 ID: ${webLinkId}, 공유 대상 ID: ${userId}`);
+    console.log(`📢 [DEBUG] 최종 공유 요청 - webLinkId: ${webLinkId}, userId: ${userId}, selectedUserId: ${selectedUserId}`);
 
     fetch("/feedmanager/share/", {
         method: "POST",
@@ -327,7 +337,7 @@ function shareWebLink(userId) {
             "Content-Type": "application/json",
             "X-CSRFToken": getCSRFToken()
         },
-        body: JSON.stringify({ webLinkId, userId })
+        body: JSON.stringify({ webLinkId, userId: selectedUserId })
     })
     .then(response => response.json())
     .then(data => {
@@ -337,11 +347,14 @@ function shareWebLink(userId) {
         } else {
             alert("웹 링크가 공유되었습니다!");
             closeShareModal();
-            fetchSharedWebLinks(); // ✅ 공유받은 웹 링크 목록 업데이트
+            fetchSharedWebLinks();
         }
     })
     .catch(error => console.error("❌ 공유 중 오류 발생:", error));
 }
+
+
+
 
 
 

@@ -114,29 +114,30 @@ def share_weblink(request):
         try:
             data = json.loads(request.body)
             webLinkId = data.get("webLinkId")
-            userId = data.get("userId")  # ❗ userId 값이 올바르게 전달되는지 확인
+            userId = data.get("userId")
             sender = request.user  # 공유한 사용자
-
-            print(f"📢 [DEBUG] 공유 요청 - webLinkId: {webLinkId}, userId: {userId}, sender: {sender.username}")
 
             if not webLinkId or not userId:
                 return JsonResponse({"error": "웹 링크 ID와 사용자 ID가 필요합니다."}, status=400)
 
-            web_link = get_object_or_404(WebLink, id=webLinkId)
-            recipient = get_object_or_404(CustomUser, id=userId)  # ❗ userId로 recipient 찾기
+            try:
+                userId = int(userId)  # ✅ 정수 변환
+            except ValueError:
+                return JsonResponse({"error": "잘못된 사용자 ID입니다."}, status=400)
 
-            # ✅ [DEBUG] recipient 값 확인
+            web_link = get_object_or_404(WebLink, id=webLinkId)
+            recipient = get_object_or_404(CustomUser, id=userId)
+
+            # ✅ 디버깅 로그
+            print(f"📢 [DEBUG] 공유 요청 - webLinkId: {webLinkId}, userId: {userId}, sender: {sender.username}")
             print(f"📢 [DEBUG] 공유받을 사용자: {recipient.username}, ID: {recipient.id}")
 
             # ✅ 이미 공유된 경우 중복 저장 방지
             if SharedWebLink.objects.filter(web_link=web_link, sender=sender, recipient=recipient).exists():
-                print("❌ [ERROR] 이미 공유된 웹 링크입니다!")
                 return JsonResponse({"error": "이미 공유된 웹 링크입니다."}, status=400)
 
             # ✅ 공유 기록 저장
-            shared_link = SharedWebLink.objects.create(web_link=web_link, sender=sender, recipient=recipient)
-
-            print(f"📢 [DEBUG] 저장된 공유 데이터: {shared_link.sender.username} → {shared_link.recipient.username}: {shared_link.web_link.name}")
+            SharedWebLink.objects.create(web_link=web_link, sender=sender, recipient=recipient)
 
             return JsonResponse({"message": "웹 링크가 성공적으로 공유되었습니다!"})
 
@@ -144,10 +145,10 @@ def share_weblink(request):
             return JsonResponse({"error": "웹 링크를 찾을 수 없습니다."}, status=404)
 
         except CustomUser.DoesNotExist:
-            print("❌ [ERROR] userId에 해당하는 사용자가 존재하지 않습니다!")
             return JsonResponse({"error": "사용자를 찾을 수 없습니다."}, status=404)
 
     return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
+
 
 
 
