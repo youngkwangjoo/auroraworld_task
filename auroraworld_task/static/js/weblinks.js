@@ -301,7 +301,7 @@ function fetchSharedWebLinks() {
     fetch("/feedmanager/shared_links/")
         .then(response => response.json())
         .then(data => {
-            console.log("📢 API 응답 데이터:", data); 
+            console.log("📢 API 응답 데이터:", data);
 
             let sharedWebLinkList = document.getElementById("sharedWebLinkList");
             if (!sharedWebLinkList) {
@@ -309,7 +309,7 @@ function fetchSharedWebLinks() {
                 return;
             }
 
-            sharedWebLinkList.innerHTML = "";
+            sharedWebLinkList.innerHTML = ""; // 기존 목록 초기화
 
             if (data.shared_links.length === 0) {
                 sharedWebLinkList.innerHTML = "<p>공유받은 웹 링크가 없습니다.</p>";
@@ -318,24 +318,29 @@ function fetchSharedWebLinks() {
 
             data.shared_links.forEach(link => {
                 let li = document.createElement("li");
+
+                // 🔹 기본 HTML 구조 (수정 버튼은 권한이 "write"일 때만 표시)
                 li.innerHTML = `
                     <strong>${link.name}</strong> - 
                     <a href="${link.url}" target="_blank">${link.url}</a> 
                     (${link.category}) | 공유한 사용자: ${link.shared_by}
-                    
-                    <!-- ✅ 권한 변경 버튼 -->
-                    <select class="permission-select" data-link-id="${link.id}">
-                        <option value="read" ${link.permission === "read" ? "selected" : ""}>읽기</option>
-                        <option value="write" ${link.permission === "write" ? "selected" : ""}>쓰기</option>
-                    </select>
-                    <button class="update-permission-btn" onclick="updatePermission(${link.id})">변경</button>
                 `;
+
+                // ✅ "쓰기" 권한이 있는 경우 수정 버튼 추가
+                if (link.permission === "write") {
+                    li.innerHTML += `
+                        <button class="edit-shared-btn" onclick="openSharedEditModal('${link.id}')" data-permission="${link.permission}">
+                            수정
+                        </button>
+                    `;
+                }
 
                 sharedWebLinkList.appendChild(li);
             });
         })
         .catch(error => console.error("❌ 공유 웹 링크 불러오기 실패:", error));
 }
+
 
 
 
@@ -346,8 +351,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function shareWebLink(webLinkId, userId) {
     let selectedUserId = parseInt(document.getElementById("searchUserInput").dataset.selectedUserId);
+    let permission = document.getElementById("sharePermission").value; // 🔹 선택한 권한 가져오기
 
-    console.log(`📢 [DEBUG] 최종 공유 요청 - webLinkId: ${webLinkId}, userId: ${userId}, selectedUserId: ${selectedUserId}`);
+    console.log(`📢 [DEBUG] 최종 공유 요청 - webLinkId: ${webLinkId}, userId: ${userId}, permission: ${permission}`);
 
     fetch("/feedmanager/share/", {
         method: "POST",
@@ -355,7 +361,7 @@ function shareWebLink(webLinkId, userId) {
             "Content-Type": "application/json",
             "X-CSRFToken": getCSRFToken()
         },
-        body: JSON.stringify({ webLinkId, userId: selectedUserId })
+        body: JSON.stringify({ webLinkId, userId: selectedUserId, permission: permission }) // ✅ 권한 함께 전송
     })
     .then(response => response.json())
     .then(data => {
@@ -371,21 +377,28 @@ function shareWebLink(webLinkId, userId) {
     .catch(error => console.error("❌ 공유 중 오류 발생:", error));
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("shareAllBtn").addEventListener("click", openShareAllModal);
 });
 
-function openShareAllModal() {
-    let modal = document.getElementById("shareAllModal");
+function openShareModal(webLinkId) {
+    let shareModal = document.getElementById("shareModal");
+    shareModal.style.display = "block";
+    
+    document.getElementById("searchUserInput").dataset.webLinkId = webLinkId;
+    
+    // ✅ 권한 선택 추가
+    let permissionSelectHTML = `
+        <label for="sharePermission">권한:</label>
+        <select id="sharePermission">
+            <option value="read">읽기</option>
+            <option value="write">쓰기</option>
+        </select>
+    `;
+    document.getElementById("shareModal").insertAdjacentHTML("beforeend", permissionSelectHTML);
 
-    if (!modal) {
-        console.error("❌ 오류: shareAllModal 요소를 찾을 수 없음!");
-        return;
-    }
-
-    fetchAllUsers().then(() => {
-        modal.style.display = "block";
-    });
+    fetchUsers(webLinkId);
 }
 
 
@@ -494,41 +507,140 @@ function shareAllWebLinks(userId) {
     .catch(error => console.error("❌ 전체 공유 중 오류 발생:", error));
 }
 
-function updatePermission(webLinkId) {
-    let selectElement = document.querySelector(`.permission-select[data-link-id="${webLinkId}"]`);
-    
-    if (!selectElement) {  
-        console.error(`❌ 오류: webLinkId=${webLinkId}에 해당하는 <select> 요소를 찾을 수 없음!`);
+function openShareAllModal() {
+    let shareAllModal = document.getElementById("shareAllModal");
+
+    if (!shareAllModal) {
+        console.error("❌ 오류: #shareAllModal 요소를 찾을 수 없음!");
         return;
     }
 
-    let newPermission = selectElement.value;
+    // ✅ 기존 `openShareModal`과 동일한 방식으로 설정
+    shareAllModal.style.display = "block"; // 모달 열기
+    document.getElementById("searchAllUserInput").value = ""; // 검색 입력 초기화
+    fetchAllUsers(); // ✅ 전체 사용자 목록 불러오기
+}
 
-    console.log(`📢 [DEBUG] 권한 변경 요청: webLinkId = ${webLinkId}, newPermission = ${newPermission}`);
+// ✅ 공유 모달 닫기
+function closeShareAllModal() {
+    let shareAllModal = document.getElementById("shareAllModal");
+    if (!shareAllModal) return;
+    shareAllModal.style.display = "none";
+}
 
-    fetch("/feedmanager/update_permission/", {
-        method: "POST",
+// ✅ ESC 키를 누르면 모달 닫기
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeShareAllModal();
+    }
+});
+
+
+
+// ✅ 공유받은 웹 링크 수정 모달 열기
+function openSharedEditModal(webLinkId) {
+    let modal = document.getElementById("sharedEditModal");
+
+    if (!modal) {
+        console.error("❌ 오류: sharedEditModal 요소를 찾을 수 없음!");
+        return;
+    }
+
+    // ✅ 해당 웹 링크 데이터를 가져와서 모달에 채우기
+    fetch(`/feedmanager/shared_link/${webLinkId}/`)
+        .then(response => response.json())
+        .then(data => {
+            let editPermission = document.querySelector(`button[onclick="openSharedEditModal('${webLinkId}')"]`).dataset.permission;
+
+            if (editPermission !== "write") {
+                alert("❌ 수정 권한이 없습니다!");
+                return;
+            }
+
+            document.getElementById("sharedEditWebLinkId").value = data.id;
+            document.getElementById("sharedEditWebLinkName").value = data.name;
+            document.getElementById("sharedEditWebLinkUrl").value = data.url;
+            modal.style.display = "block";  // ✅ 모달 표시
+        })
+        .catch(error => console.error("❌ 공유된 웹 링크 데이터 불러오기 실패:", error));
+}
+
+// ✅ 공유받은 웹 링크 수정 모달 닫기
+function closeSharedEditModal() {
+    document.getElementById("sharedEditModal").style.display = "none";
+}
+
+
+// ✅ 공유받은 웹 링크 수정 요청 보내기
+function editSharedWebLink() {
+    let webLinkId = document.getElementById("sharedEditWebLinkId").value;
+    let name = document.getElementById("sharedEditWebLinkName").value.trim();
+    let url = document.getElementById("sharedEditWebLinkUrl").value.trim();
+
+    if (!name || !url) {
+        alert("수정할 웹 링크 이름과 URL을 입력하세요!");
+        return;
+    }
+
+    fetch(`/feedmanager/edit_shared/${webLinkId}/`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": getCSRFToken()
         },
-        body: JSON.stringify({ webLinkId: webLinkId, permission: newPermission })
+        body: JSON.stringify({ name, url })
     })
     .then(response => response.json())
     .then(data => {
-        console.log("📢 [DEBUG] 서버 응답:", data);
         if (data.error) {
-            alert("❌ 권한 변경 실패: " + data.error);
+            alert("수정 실패: " + data.error);
         } else {
-            alert("✅ 권한이 변경되었습니다!");
-            fetchSharedWebLinks();
+            alert("✅ 공유받은 웹 링크가 수정되었습니다!");
+            closeSharedEditModal();
+            fetchSharedWebLinks(); // 목록 다시 불러오기
         }
     })
-    .catch(error => console.error("❌ 권한 변경 중 오류 발생:", error));
+    .catch(error => console.error("❌ 공유받은 웹 링크 수정 중 오류 발생:", error));
+}
+
+// ✅ 공유받은 웹 링크 업데이트 (쓰기 권한이 있을 경우)
+function updateSharedWebLink() {
+    let webLinkId = document.getElementById("sharedEditWebLinkId").value;
+    let name = document.getElementById("sharedEditWebLinkName").value.trim();
+    let url = document.getElementById("sharedEditWebLinkUrl").value.trim();
+
+    if (!name || !url) {
+        alert("웹 링크 이름과 URL을 입력하세요!");
+        return;
+    }
+
+    fetch(`/feedmanager/update_shared_link/${webLinkId}/`, {  // ✅ URL 확인
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ name, url })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert("❌ 수정 실패: " + data.error);
+        } else {
+            alert("✅ 공유받은 웹 링크가 수정되었습니다!");
+            closeSharedEditModal();
+            fetchSharedWebLinks(); // ✅ 목록 새로고침
+        }
+    })
+    .catch(error => console.error("❌ 공유받은 웹 링크 수정 중 오류 발생:", error));
 }
 
 
 
+// ✅ 공유받은 웹 링크 수정 모달 닫기
+function closeSharedEditModal() {
+    document.getElementById("sharedEditModal").style.display = "none";
+}
 
 
 // ✅ 클릭된 사용자 음영처리 효과 (클릭 후 색상 변경)

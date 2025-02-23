@@ -22,17 +22,23 @@
     <h2>공유받은 웹 링크</h2>
     <div id="feedbox">
         <button id="shareAllBtn" class="blue-button">전체 공유</button>  <!-- 🔹 추가된 버튼 -->
-        <ul id="sharedWebLinkList">
-            <li>
-                <strong>테스트 링크</strong>
-                <select class="permission-select" data-link-id="5" onchange="updatePermission(5)">
-                    <option value="read">읽기</option>
-                    <option value="write">쓰기</option>
-                </select>
-            </li>
-        </ul>
+        <ul id="sharedWebLinkList"></ul>
     </div>
-    
+    <!-- ✅ 공유받은 웹 링크 수정 모달 -->
+    <div id="sharedEditModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSharedEditModal()">&times;</span>
+            <h2>공유받은 웹 링크 수정</h2>
+            <input type="hidden" id="sharedEditWebLinkId">
+            <input type="text" id="sharedEditWebLinkName" placeholder="웹 링크 이름">
+            <input type="text" id="sharedEditWebLinkUrl" placeholder="웹 링크 URL">
+            <button class="edit-btn" onclick="updateSharedWebLink()">수정</button>
+            <button class="close-btn" onclick="closeSharedEditModal()">닫기</button>
+        </div>
+    </div>
+
+
+
     <!-- ✅ 전체 공유 모달 -->
     <div id="shareAllModal" class="modal">
         <div class="modal-content">

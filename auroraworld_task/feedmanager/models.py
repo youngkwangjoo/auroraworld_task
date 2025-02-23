@@ -24,14 +24,17 @@ class WebLink(models.Model):
         return f"{self.name} - {self.url}"
 
 class SharedWebLink(models.Model):
+    """ ✅ 웹 링크 공유 모델 """
     web_link = models.ForeignKey(WebLink, on_delete=models.CASCADE)
     sender = models.ForeignKey(CustomUser, related_name="sent_links", on_delete=models.CASCADE)
     recipient = models.ForeignKey(CustomUser, related_name="received_links", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     
-    # 🔽 permission 필드가 있는지 확인
+    # ✅ 읽기 / 쓰기 권한 필드 추가
     permission = models.CharField(max_length=10, choices=[("read", "읽기"), ("write", "쓰기")], default="read")
 
-    def __str__(self):
-        return f"{self.sender} -> {self.recipient}: {self.web_link.name}"
+    class Meta:
+        unique_together = ("web_link", "recipient")  # 🔥 동일한 웹 링크 중복 공유 방지
 
+    def __str__(self):
+        return f"{self.sender} -> {self.recipient}: {self.web_link.name} ({self.permission})"
