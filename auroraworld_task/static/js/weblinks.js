@@ -53,22 +53,32 @@ function fetchUsers(webLinkId) {
             userList.innerHTML = "";
             userList.style.display = "none";
 
+            // ✅ 전체 사용자에게 공유 버튼 추가
+            let shareAllBtn = document.createElement("button");
+            shareAllBtn.textContent = "📢 전체 공유";
+            shareAllBtn.classList.add("share-all-btn");
+            shareAllBtn.onclick = function () {
+                console.log(`📢 [DEBUG] 전체 공유 실행 - 웹 링크 ID: ${webLinkId}`);
+
+                let allUserIds = data.users.map(user => parseInt(user.id));  // 모든 userId 배열화
+                shareWebLinkMultiple(webLinkId, allUserIds);
+            };
+            userList.appendChild(shareAllBtn);
+
             data.users.forEach(user => {
                 let li = document.createElement("li");
-                li.dataset.userId = user.id;  // ✅ userId 올바르게 저장
+                li.dataset.userId = user.id;
                 li.dataset.username = user.username || "";
                 li.dataset.name = user.name || "";
                 li.dataset.email = user.email || "";
 
                 li.textContent = `${user.username} (${user.name}, ${user.email})`;
 
-                // ✅ 클릭한 사용자의 ID 확인
+                // ✅ 클릭한 사용자에게 개별 공유 실행
                 li.onclick = function () {
                     console.log(`📢 [DEBUG] 클릭된 사용자 - userId: ${li.dataset.userId}, username: ${li.dataset.username}`);
 
-                    // ✅ 선택한 userId를 searchUserInput에 저장
-                    document.getElementById("searchUserInput").dataset.selectedUserId = parseInt(li.dataset.userId);
-
+                    // ✅ 개별 공유 실행
                     shareWebLink(webLinkId, parseInt(li.dataset.userId));
                 };
 
@@ -79,6 +89,7 @@ function fetchUsers(webLinkId) {
         })
         .catch(error => console.error("❌ 사용자 목록 불러오기 실패:", error));
 }
+
 
 
 
@@ -288,15 +299,11 @@ function fetchSharedWebLinks() {
     console.log("📢 fetchSharedWebLinks() 실행됨! ✅");
 
     fetch("/feedmanager/shared_links/")
-        .then(response => {
-            console.log("📢 API 요청 응답 상태 코드:", response.status); // 응답 코드 확인
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log("📢 API 응답 데이터:", data); // 응답 데이터 확인
+            console.log("📢 API 응답 데이터:", data); 
 
             let sharedWebLinkList = document.getElementById("sharedWebLinkList");
-
             if (!sharedWebLinkList) {
                 console.error("❌ 오류: 공유받은 링크를 표시할 #sharedWebLinkList 요소를 찾을 수 없음!");
                 return;
@@ -311,14 +318,25 @@ function fetchSharedWebLinks() {
 
             data.shared_links.forEach(link => {
                 let li = document.createElement("li");
-                li.innerHTML = `<strong>${link.name}</strong> - 
-                                <a href="${link.url}" target="_blank">${link.url}</a> 
-                                (${link.category}) | 공유한 사용자: ${link.shared_by}`;
+                li.innerHTML = `
+                    <strong>${link.name}</strong> - 
+                    <a href="${link.url}" target="_blank">${link.url}</a> 
+                    (${link.category}) | 공유한 사용자: ${link.shared_by}
+                    
+                    <!-- ✅ 권한 변경 버튼 -->
+                    <select class="permission-select" data-link-id="${link.id}">
+                        <option value="read" ${link.permission === "read" ? "selected" : ""}>읽기</option>
+                        <option value="write" ${link.permission === "write" ? "selected" : ""}>쓰기</option>
+                    </select>
+                    <button class="update-permission-btn" onclick="updatePermission(${link.id})">변경</button>
+                `;
+
                 sharedWebLinkList.appendChild(li);
             });
         })
         .catch(error => console.error("❌ 공유 웹 링크 불러오기 실패:", error));
 }
+
 
 
 // ✅ 로그인 후 공유받은 웹 링크 자동 로드
@@ -353,7 +371,174 @@ function shareWebLink(webLinkId, userId) {
     .catch(error => console.error("❌ 공유 중 오류 발생:", error));
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("shareAllBtn").addEventListener("click", openShareAllModal);
+});
 
+function openShareAllModal() {
+    let modal = document.getElementById("shareAllModal");
+
+    if (!modal) {
+        console.error("❌ 오류: shareAllModal 요소를 찾을 수 없음!");
+        return;
+    }
+
+    fetchAllUsers().then(() => {
+        modal.style.display = "block";
+    });
+}
+
+
+// ✅ ESC 키로 전체 공유 모달 닫기
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeShareAllModal();
+    }
+});
+
+// ✅ 전체 공유 모달 닫기
+function closeShareAllModal() {
+    document.getElementById("shareAllModal").style.display = "none";
+}
+
+// ✅ 사용자 검색 기능 (이메일 또는 이름으로 검색 가능)
+function searchAllUsers() {
+    let input = document.getElementById("searchAllUserInput").value.toLowerCase();
+    let userList = document.getElementById("allUserList");
+    let users = document.querySelectorAll("#allUserList li");
+
+    let hasResults = false;
+    users.forEach(user => {
+        let userText = user.dataset.username.toLowerCase();
+        let userNameText = user.dataset.name.toLowerCase();
+        let userEmailText = user.dataset.email.toLowerCase();
+
+        if (
+            userText.includes(input) ||
+            userNameText.includes(input) ||
+            userEmailText.includes(input)
+        ) {
+            user.style.display = "block";
+            hasResults = true;
+        } else {
+            user.style.display = "none";
+        }
+    });
+
+    // ✅ 검색 결과가 있을 때만 리스트 보이도록 수정
+    userList.style.display = hasResults ? "block" : "none";
+}
+
+
+// ✅ 모든 사용자 목록 불러오기
+function fetchAllUsers() {
+    return fetch("/users/all_users/")
+        .then(response => response.json())
+        .then(data => {
+            let userList = document.getElementById("allUserList");
+            userList.innerHTML = ""; // 목록 초기화
+            userList.style.display = "none"; // 기본적으로 숨김
+
+            data.users.forEach(user => {
+                let li = document.createElement("li");
+                li.dataset.userId = user.id;
+                li.dataset.username = user.username || "";
+                li.dataset.name = user.name || "";
+                li.dataset.email = user.email || "";
+
+                li.textContent = `${user.username} (${user.name}, ${user.email})`;
+
+                li.onclick = function () {
+                    console.log(`📢 [DEBUG] 선택된 사용자 - userId: ${li.dataset.userId}, username: ${li.dataset.username}`);
+
+                    // ✅ 클릭된 사용자 음영 처리
+                    highlightSelection(li);
+
+                    // ✅ 선택한 사용자에게 전체 공유 실행
+                    shareAllWebLinks(parseInt(li.dataset.userId));
+                };
+
+                userList.appendChild(li);
+            });
+        })
+        .catch(error => console.error("❌ 전체 사용자 목록 불러오기 실패:", error));
+}
+
+
+function shareAllWebLinks(userId) {
+    let confirmation = confirm("정말 모든 웹 링크를 이 사용자에게 공유하시겠습니까?");
+    if (!confirmation) return;
+    // ✅ 선택한 권한 가져오기
+    let permission = document.getElementById("permissionSelect").value;
+    console.log(`📢 [DEBUG] 전체 공유 요청: recipientId = ${userId}`);
+
+    fetch("/feedmanager/share_all/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ recipientId: userId, permission: permission })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("📢 [DEBUG] 서버 응답:", data);
+        if (data.error) {
+            alert("❌ 전체 공유 실패: " + data.error);
+        } else {
+            alert("✅ 모든 웹 링크가 성공적으로 공유되었습니다!");
+            closeShareAllModal();
+            fetchSharedWebLinks();
+        }
+    })
+    .catch(error => console.error("❌ 전체 공유 중 오류 발생:", error));
+}
+
+function updatePermission(webLinkId) {
+    let selectElement = document.querySelector(`.permission-select[data-link-id="${webLinkId}"]`);
+    
+    if (!selectElement) {  
+        console.error(`❌ 오류: webLinkId=${webLinkId}에 해당하는 <select> 요소를 찾을 수 없음!`);
+        return;
+    }
+
+    let newPermission = selectElement.value;
+
+    console.log(`📢 [DEBUG] 권한 변경 요청: webLinkId = ${webLinkId}, newPermission = ${newPermission}`);
+
+    fetch("/feedmanager/update_permission/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ webLinkId: webLinkId, permission: newPermission })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("📢 [DEBUG] 서버 응답:", data);
+        if (data.error) {
+            alert("❌ 권한 변경 실패: " + data.error);
+        } else {
+            alert("✅ 권한이 변경되었습니다!");
+            fetchSharedWebLinks();
+        }
+    })
+    .catch(error => console.error("❌ 권한 변경 중 오류 발생:", error));
+}
+
+
+
+
+
+// ✅ 클릭된 사용자 음영처리 효과 (클릭 후 색상 변경)
+function highlightSelection(element) {
+    let originalColor = element.style.backgroundColor; // 원래 색상 저장
+    element.style.backgroundColor = "#d3d3d3"; // 클릭 시 회색 음영 처리
+    setTimeout(() => {
+        element.style.backgroundColor = originalColor || ""; // 원래 색상으로 복귀
+    }, 500);
+}
 
 
 

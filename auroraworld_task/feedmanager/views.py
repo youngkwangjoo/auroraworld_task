@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from .models import WebLink, SharedWebLink
+from django.views.decorators.http import require_http_methods
 
 
 @csrf_exempt
@@ -181,3 +182,64 @@ def shared_links_view(request):
     return JsonResponse({"shared_links": shared_list})
 
 
+@login_required
+@require_http_methods(["POST"])
+def share_all_weblinks(request):
+    """ ✅ 사용자의 모든 웹 링크를 특정 사용자에게 한 번에 공유 (읽기/쓰기 권한 추가) """
+    try:
+        data = json.loads(request.body)
+        recipient_id = data.get("recipientId")
+        permission = data.get("permission", "read")  # ✅ 기본값: read
+
+        sender = request.user
+        recipient = get_object_or_404(CustomUser, id=recipient_id)
+        sender_weblinks = WebLink.objects.filter(created_by=sender)
+
+        if not sender_weblinks.exists():
+            return JsonResponse({"error": "공유할 웹 링크가 없습니다."}, status=400)
+
+        shared_links = []
+        for weblink in sender_weblinks:
+            existing_share = SharedWebLink.objects.filter(web_link=weblink, sender=sender, recipient=recipient).first()
+            if existing_share:
+                existing_share.permission = permission  # ✅ 기존 공유 권한 업데이트
+                existing_share.save()
+            else:
+                shared_link = SharedWebLink.objects.create(web_link=weblink, sender=sender, recipient=recipient, permission=permission)
+                shared_links.append({
+                    "name": shared_link.web_link.name,
+                    "url": shared_link.web_link.url
+                })
+
+        print(f"📢 [DEBUG] 저장된 전체 공유 데이터: {shared_links}")
+
+        return JsonResponse({"message": "✅ 모든 웹 링크가 성공적으로 공유되었습니다!", "shared_links": shared_links})
+
+    except Exception as e:
+        return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
+
+@csrf_exempt
+def update_permission(request):
+    """ ✅ 공유된 웹 링크의 권한을 변경하는 API """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            web_link_id = data.get("webLinkId")
+            new_permission = data.get("permission")
+
+            # ✅ 권한 값 검증
+            if new_permission not in ["read", "write"]:
+                return JsonResponse({"error": "잘못된 권한 값입니다."}, status=400)
+
+            shared_link = SharedWebLink.objects.get(id=web_link_id)
+            shared_link.permission = new_permission
+            shared_link.save()
+
+            return JsonResponse({"message": "권한이 성공적으로 변경되었습니다!"})
+
+        except SharedWebLink.DoesNotExist:
+            return JsonResponse({"error": "해당 웹 링크를 찾을 수 없습니다."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)

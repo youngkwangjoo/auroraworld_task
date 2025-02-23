@@ -24,11 +24,14 @@ class WebLink(models.Model):
         return f"{self.name} - {self.url}"
 
 class SharedWebLink(models.Model):
-    """ ✅ 공유된 웹 링크 기록 모델 """
-    web_link = models.ForeignKey(WebLink, on_delete=models.CASCADE, related_name="shared_records")
-    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sent_shared_links")  # 공유한 사람
-    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="received_shared_links")  # 공유받은 사람
-    shared_at = models.DateTimeField(auto_now_add=True)  # 공유 시간 기록
+    web_link = models.ForeignKey(WebLink, on_delete=models.CASCADE)
+    sender = models.ForeignKey(CustomUser, related_name="sent_links", on_delete=models.CASCADE)
+    recipient = models.ForeignKey(CustomUser, related_name="received_links", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # 🔽 permission 필드가 있는지 확인
+    permission = models.CharField(max_length=10, choices=[("read", "읽기"), ("write", "쓰기")], default="read")
 
     def __str__(self):
-        return f"{self.sender.username} → {self.recipient.username}: {self.web_link.name}"
+        return f"{self.sender} -> {self.recipient}: {self.web_link.name}"
+

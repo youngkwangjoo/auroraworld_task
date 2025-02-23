@@ -15,17 +15,50 @@
     <h1 class="title">전체 웹 링크 목록</h1>
 
     <div class="feed-box">
-        <ul id="webLinkList"></ul>
+        <ul id="webLinkList"></ul> <!-- ✅ 내 웹 링크 목록 -->
     </div>
+
     <!-- ✅ 공유받은 웹 링크 목록 추가 -->
     <h2>공유받은 웹 링크</h2>
-    <div class="feed-box">
-        <ul id="sharedWebLinkList"></ul>
+    <div id="feedbox">
+        <button id="shareAllBtn" class="blue-button">전체 공유</button>  <!-- 🔹 추가된 버튼 -->
+        <ul id="sharedWebLinkList">
+            <li>
+                <strong>테스트 링크</strong>
+                <select class="permission-select" data-link-id="5" onchange="updatePermission(5)">
+                    <option value="read">읽기</option>
+                    <option value="write">쓰기</option>
+                </select>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- ✅ 전체 공유 모달 -->
+    <div id="shareAllModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeShareAllModal()">&times;</span>
+            <h3>전체 공유할 사용자 선택</h3>
+            
+            <label for="permissionSelect">권한:</label>
+            <select id="permissionSelect" class="permission-select">
+                <option value="read">읽기</option>
+                <option value="write">쓰기</option>
+            </select>
+            
+            
+
+            <!-- ✅ 사용자 검색 입력 -->
+            <input type="text" id="searchAllUserInput" placeholder="이름, 이메일, ID 검색" onkeyup="searchAllUsers()">
+
+            <!-- ✅ 검색 결과 기본적으로 숨김 -->
+            <ul id="allUserList" style="display: none;"></ul>
+        </div>
     </div>
 
+    
     <button class="search-btn" onclick="location.href='/users/auroramain/'">뒤로 가기</button>
 
-    <!-- 공유 모달 -->
+    <!-- ✅ 개별 웹 링크 공유 모달 -->
     <div id="shareModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeShareModal()">&times;</span>
@@ -34,7 +67,6 @@
             <ul id="userList" style="display: none;"></ul> <!-- ✅ 기본적으로 숨김 -->
         </div>
     </div>
-
 
     <!-- ✅ 수정 모달 -->
     <div id="editModal" class="modal">
