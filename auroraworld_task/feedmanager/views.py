@@ -94,7 +94,7 @@ def edit_weblink(request, pk):  # pk 인자 추가
     except Exception as e:
         return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
 
-@csrf_exempt
+@jwt_required
 def delete_weblink(request, pk):
     """ ✅ DB에서 완전히 삭제하는 웹 링크 삭제 API """
     if request.method != "DELETE":
@@ -141,10 +141,7 @@ def share_weblink(request):
     return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
 
 
-
-
-
-@login_required
+@jwt_required
 def shared_links_view(request):
     """ ✅ 공유받은 웹 링크 목록 반환 """
     user = request.user
@@ -163,6 +160,7 @@ def shared_links_view(request):
     ]
     return JsonResponse({"shared_links": shared_list})
 
+@jwt_required
 def edit_shared_weblink(request, web_link_id):
     """ ✅ 공유된 웹 링크 수정 API """
     if request.method == "PUT":
@@ -191,9 +189,7 @@ def edit_shared_weblink(request, web_link_id):
     return JsonResponse({"error": "❌ PUT 요청만 허용됩니다."}, status=405)
 
 
-
-
-@login_required
+@jwt_required
 @require_http_methods(["POST"])
 def share_all_weblinks(request):
     """ ✅ 사용자의 모든 웹 링크를 특정 사용자에게 한 번에 공유 """
@@ -222,6 +218,7 @@ def share_all_weblinks(request):
         return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
 
 @csrf_exempt
+@jwt_required
 def update_permission(request):
     """ ✅ 공유된 웹 링크의 권한 변경 API """
     if request.method == "POST":
