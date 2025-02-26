@@ -13,7 +13,7 @@ class WebLink(models.Model):
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    url = models.URLField(unique=True)
+    url = models.URLField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="personal")
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="created_links")
     updated_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name="updated_links")

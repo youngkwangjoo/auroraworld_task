@@ -68,28 +68,6 @@ body {
     padding: 0;
 }
 
-/* ✅ 개별 웹 링크 항목 */
-.web-link-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-/* ✅ 웹 링크 정보 영역 */
-.web-link-info {
-    flex-grow: 1;  /* 🔥 웹 링크 정보가 가변적으로 늘어남 */
-    word-break: break-word; /* 너무 긴 URL도 줄바꿈 처리 */
-}
-
-/* ✅ 웹 링크 목록 내 버튼 스타일 */
-.web-link-buttons {
-    display: flex;
-    gap: 5px;
-}
-
 /* ✅ 버튼 공통 스타일 */
 button {
     padding: 6px 10px;
@@ -224,4 +202,132 @@ button {
 
 #userList li:hover {
     background-color: #f0f0f0; /* 마우스 오버 시 연한 회색 */
+}
+
+/* ✅ 피드와 전체 공유 버튼을 가로로 배치 */
+.feed-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px; /* 🔹 피드와 버튼 사이 간격 */
+}
+
+/* ✅ 전체 공유 버튼 스타일 */
+.blue-button {
+    background-color: #007bff; /* 🔹 파란색 배경 */
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* ✅ 버튼 호버 효과 */
+.blue-button:hover {
+    background-color: #0056b3; /* 🔹 진한 파란색 */
+}
+
+/* ✅ 공유받은 웹 링크 수정 버튼 (기존 edit-btn 스타일과 동일) */
+.edit-shared-btn {
+    background-color: #FFA500; /* 주황색 */
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.3s ease;
+}
+
+/* ✅ 마우스 호버 시 색상 변경 (기존 edit-btn과 동일) */
+.edit-shared-btn:hover {
+    background-color: #FF8C00; /* 어두운 주황색 */
+}
+
+/* ✅ 리스트 마커 제거 및 줄 간격 조정 */
+ul {
+    list-style: none; /* 목록 앞의 ●, ○ 같은 마커 제거 */
+    padding-left: 0; /* 왼쪽 기본 여백 제거 */
+}
+
+/* ✅ 개별 웹 링크 항목 스타일 조정 */
+.web-link-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 0; /* 위아래 패딩 조정 */
+    border-bottom: 1px solid #ddd;
+    line-height: 1.6; /* 줄 간격 늘리기 */
+}
+
+/* ✅ 공유받은 웹 링크 항목도 동일한 스타일 적용 */
+#sharedWebLinkList li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 0; /* 위아래 패딩 조정 */
+    border-bottom: 1px solid #ddd;
+    line-height: 1.6; /* 줄 간격 늘리기 */
+}
+
+/* ✅ 공유받은 웹 링크 목록의 스타일을 전체 웹 링크 목록과 동일하게 적용 */
+.shared-feed-box {
+    width: 70%;
+    min-width: 400px;
+    max-width: 90%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ✅ 공유받은 웹 링크 전체를 flex로 정렬하여 양옆으로 배치 */
+.shared-web-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 0; /* 위아래 패딩 조정 */
+    border-bottom: 1px solid #ddd;
+    line-height: 1.6; /* 줄 간격 늘리기 */
+}
+
+/* ✅ 왼쪽: 웹 링크 정보 */
+.web-link-info {
+    flex-grow: 1;  /* 🔥 가변 크기 조정 (남은 공간 채우기) */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+/* ✅ 오른쪽: 수정 버튼 */
+.web-link-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ✅ 공유한 사용자 정보 스타일 */
+.shared-by {
+    color: #666;
+    font-size: 14px;
+}
+
+#searchWebLinksInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
 }

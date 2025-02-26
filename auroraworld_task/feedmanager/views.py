@@ -116,8 +116,10 @@ def share_weblink(request):
             data = json.loads(request.body)
             webLinkId = data.get("webLinkId")
             userId = data.get("userId")
-            permission = data.get("permission", "read")
+            permission = data.get("permission", "read")  # 기본값 read
             sender = request.user
+
+            print(f"📢 [DEBUG] 공유 요청: webLinkId={webLinkId}, userId={userId}, permission={permission}")
 
             web_link = get_object_or_404(WebLink, id=webLinkId, created_by=sender)
             recipient = get_object_or_404(CustomUser, id=userId)
@@ -128,12 +130,17 @@ def share_weblink(request):
                 defaults={"sender": sender, "permission": permission}
             )
 
+            print(f"✅ [DB] 저장된 권한: {shared_link.permission}")  # 🚨 이 로그 확인!
+
             return JsonResponse({"message": "웹 링크가 공유되었습니다!", "permission": shared_link.permission})
 
         except (WebLink.DoesNotExist, CustomUser.DoesNotExist):
             return JsonResponse({"error": "웹 링크 또는 사용자를 찾을 수 없습니다."}, status=404)
 
     return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
+
+
+
 
 
 @login_required
@@ -155,30 +162,34 @@ def shared_links_view(request):
     ]
     return JsonResponse({"shared_links": shared_list})
 
-@csrf_exempt
-@login_required
 def edit_shared_weblink(request, web_link_id):
-    """ ✅ 공유받은 웹 링크 수정 API (쓰기 권한 필요) """
+    """ ✅ 공유된 웹 링크 수정 API """
     if request.method == "PUT":
+        shared_link = get_object_or_404(SharedWebLink, web_link_id=web_link_id, recipient=request.user)
+
+        print(f"🔍 [DEBUG] 공유된 웹 링크 권한: {shared_link.permission}")  # ✅ 로그 추가
+
+        if shared_link.permission != "write":
+            print(f"❌ [ERROR] 수정 권한 부족 (현재 권한: {shared_link.permission})")  # 🚨 문제 확인 로그
+            return JsonResponse({"error": "❌ 수정 권한이 없습니다!"}, status=403)
+
         try:
-            shared_link = get_object_or_404(SharedWebLink, web_link__id=web_link_id, recipient=request.user)
-
-            # 🔹 "쓰기" 권한이 있는지 확인
-            if shared_link.permission != "write":
-                return JsonResponse({"error": "수정 권한이 없습니다."}, status=403)
-
-            # 🔹 JSON 데이터 파싱
             data = json.loads(request.body)
-            shared_link.web_link.name = data.get("name", shared_link.web_link.name)
-            shared_link.web_link.url = data.get("url", shared_link.web_link.url)
-            shared_link.web_link.save()
+            web_link = shared_link.web_link  # ✅ 연결된 원본 WebLink 가져오기
+            web_link.name = data["name"]
+            web_link.url = data["url"]
+            web_link.save()
 
+            print(f"✅ [SUCCESS] '{web_link.name}' 링크 수정 완료!")
             return JsonResponse({"message": "✅ 공유받은 웹 링크가 수정되었습니다!"})
 
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "잘못된 요청 형식입니다."}, status=400)
+        except Exception as e:
+            print(f"❌ [ERROR] 수정 중 오류 발생: {str(e)}")  # 🚨 예외 처리 로그
+            return JsonResponse({"error": f"❌ 수정 중 오류 발생: {str(e)}"}, status=500)
 
-    return JsonResponse({"error": "PUT 요청만 허용됩니다."}, status=405)
+    return JsonResponse({"error": "❌ PUT 요청만 허용됩니다."}, status=405)
+
+
 
 
 @login_required

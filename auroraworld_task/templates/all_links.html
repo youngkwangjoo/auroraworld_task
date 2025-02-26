@@ -12,22 +12,25 @@
         <button class="logout-btn" onclick="location.href='/users/logout/'">로그아웃</button>
     </div>
 
-    <h1 class="title">전체 웹 링크 목록</h1>
-
+    <h1 class="title">나의 웹링크 피드</h1>
+        <button id="shareAllBtn" class="blue-button">전체 공유</button>
     <div class="feed-box">
-        <ul id="webLinkList"></ul> <!-- ✅ 내 웹 링크 목록 -->
+        <!-- ✅ 검색 박스 추가 -->
+        <input type="text" id="searchWebLinksInput" placeholder="웹 링크 검색 (이름, 카테고리)" onkeyup="searchWebLinks()">
+        <ul id="webLinkList"></ul> 
     </div>
 
     <!-- ✅ 공유받은 웹 링크 목록 추가 -->
-    <h2>공유받은 웹 링크</h2>
-    <div id="feedbox">
-        <button id="shareAllBtn" class="blue-button">전체 공유</button>  <!-- 🔹 추가된 버튼 -->
+    <h2>다른 사람에게 공유받은 웹 링크</h2>
+    <div id="sharedFeedBox" class="feed-box"> 
+
         <ul id="sharedWebLinkList"></ul>
     </div>
+    
+    
     <!-- ✅ 공유받은 웹 링크 수정 모달 -->
     <div id="sharedEditModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeSharedEditModal()">&times;</span>
             <h2>공유받은 웹 링크 수정</h2>
             <input type="hidden" id="sharedEditWebLinkId">
             <input type="text" id="sharedEditWebLinkName" placeholder="웹 링크 이름">
@@ -42,7 +45,6 @@
     <!-- ✅ 전체 공유 모달 -->
     <div id="shareAllModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeShareAllModal()">&times;</span>
             <h3>전체 공유할 사용자 선택</h3>
             
             <label for="permissionSelect">권한:</label>
@@ -51,15 +53,15 @@
                 <option value="write">쓰기</option>
             </select>
             
-            
-
             <!-- ✅ 사용자 검색 입력 -->
             <input type="text" id="searchAllUserInput" placeholder="이름, 이메일, ID 검색" onkeyup="searchAllUsers()">
 
-            <!-- ✅ 검색 결과 기본적으로 숨김 -->
+            <!-- ✅ 검색 결과 -->
             <ul id="allUserList" style="display: none;"></ul>
+
         </div>
     </div>
+
 
     
     <button class="search-btn" onclick="location.href='/users/auroramain/'">뒤로 가기</button>
@@ -69,10 +71,20 @@
         <div class="modal-content">
             <span class="close" onclick="closeShareModal()">&times;</span>
             <h2>웹 링크 공유</h2>
+
+            <!-- ✅ 드롭다운 추가 -->
+            <label for="sharePermission">권한 선택:</label>
+            <select id="sharePermission">
+                <option value="read">읽기</option>
+                <option value="write">쓰기</option>
+            </select>
+
+            <!-- ✅ 사용자 검색 입력 -->
             <input type="text" id="searchUserInput" placeholder="이메일 또는 이름으로 검색" onkeyup="searchUsers()">
             <ul id="userList" style="display: none;"></ul> <!-- ✅ 기본적으로 숨김 -->
         </div>
     </div>
+
 
     <!-- ✅ 수정 모달 -->
     <div id="editModal" class="modal">

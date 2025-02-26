@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchWebLinks();
 });
 
-// ✅ 웹 링크 목록 가져오기 및 "공유하기" 버튼 추가
+// ✅ 웹 링크 목록 가져오기 
 function fetchWebLinks() {
     fetch("/feedmanager/all_links/")
         .then(response => response.json())
@@ -26,7 +26,6 @@ function fetchWebLinks() {
                         (${link.category})
                     </div>
                     <div class="web-link-buttons">
-                        <button class="share-btn" onclick="openShareModal(${link.id})">공유하기</button>
                         <button class="edit-btn" onclick="openEditModal(${link.id}, '${link.name}', '${link.url}')">수정</button>
                         <button class="delete-btn" onclick="deleteWebLink(${link.id})">삭제</button>
                     </div>
@@ -43,52 +42,52 @@ function fetchWebLinks() {
 }
 
 // ✅ 사용자 목록 불러오기
-function fetchUsers(webLinkId) {
-    fetch("/users/all_users/")
-        .then(response => response.json())
-        .then(data => {
-            console.log("✅ 사용자 목록 응답:", data);
+// function fetchUsers(webLinkId) {
+//     fetch("/users/all_users/")
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log("✅ 사용자 목록 응답:", data);
 
-            let userList = document.getElementById("userList");
-            userList.innerHTML = "";
-            userList.style.display = "none";
+//             let userList = document.getElementById("userList");
+//             userList.innerHTML = "";
+//             userList.style.display = "none";
 
-            // ✅ 전체 사용자에게 공유 버튼 추가
-            let shareAllBtn = document.createElement("button");
-            shareAllBtn.textContent = "📢 전체 공유";
-            shareAllBtn.classList.add("share-all-btn");
-            shareAllBtn.onclick = function () {
-                console.log(`📢 [DEBUG] 전체 공유 실행 - 웹 링크 ID: ${webLinkId}`);
+//             // ✅ 전체 사용자에게 공유 버튼 추가
+//             let shareAllBtn = document.createElement("button");
+//             shareAllBtn.textContent = "📢 전체 공유";
+//             shareAllBtn.classList.add("share-all-btn");
+//             shareAllBtn.onclick = function () {
+//                 console.log(`📢 [DEBUG] 전체 공유 실행 - 웹 링크 ID: ${webLinkId}`);
 
-                let allUserIds = data.users.map(user => parseInt(user.id));  // 모든 userId 배열화
-                shareWebLinkMultiple(webLinkId, allUserIds);
-            };
-            userList.appendChild(shareAllBtn);
+//                 let allUserIds = data.users.map(user => parseInt(user.id));  // 모든 userId 배열화
+//                 shareWebLinkMultiple(webLinkId, allUserIds);
+//             };
+//             userList.appendChild(shareAllBtn);
 
-            data.users.forEach(user => {
-                let li = document.createElement("li");
-                li.dataset.userId = user.id;
-                li.dataset.username = user.username || "";
-                li.dataset.name = user.name || "";
-                li.dataset.email = user.email || "";
+//             data.users.forEach(user => {
+//                 let li = document.createElement("li");
+//                 li.dataset.userId = user.id;
+//                 li.dataset.username = user.username || "";
+//                 li.dataset.name = user.name || "";
+//                 li.dataset.email = user.email || "";
 
-                li.textContent = `${user.username} (${user.name}, ${user.email})`;
+//                 li.textContent = `${user.username} (${user.name}, ${user.email})`;
 
-                // ✅ 클릭한 사용자에게 개별 공유 실행
-                li.onclick = function () {
-                    console.log(`📢 [DEBUG] 클릭된 사용자 - userId: ${li.dataset.userId}, username: ${li.dataset.username}`);
+//                 // ✅ 클릭한 사용자에게 개별 공유 실행
+//                 li.onclick = function () {
+//                     console.log(`📢 [DEBUG] 클릭된 사용자 - userId: ${li.dataset.userId}, username: ${li.dataset.username}`);
 
-                    // ✅ 개별 공유 실행
-                    shareWebLink(webLinkId, parseInt(li.dataset.userId));
-                };
+//                     // ✅ 개별 공유 실행
+//                     shareWebLink(webLinkId, parseInt(li.dataset.userId));
+//                 };
 
-                userList.appendChild(li);
-            });
+//                 userList.appendChild(li);
+//             });
 
-            console.log("📢 업데이트된 사용자 목록:", userList.innerHTML);
-        })
-        .catch(error => console.error("❌ 사용자 목록 불러오기 실패:", error));
-}
+//             console.log("📢 업데이트된 사용자 목록:", userList.innerHTML);
+//         })
+//         .catch(error => console.error("❌ 사용자 목록 불러오기 실패:", error));
+// }
 
 
 
@@ -104,67 +103,92 @@ function highlightSelection(element) {
 }
 
 
-function openShareModal(webLinkId) {
-    let shareModal = document.getElementById("shareModal");
-    shareModal.style.display = "block"; // ✅ 모달 표시
-    document.getElementById("searchUserInput").dataset.webLinkId = webLinkId; // ✅ 공유할 웹 링크 ID 저장
-    fetchUsers(webLinkId); // ✅ 사용자 목록 불러오기
-}
-// ✅ 공유 모달 닫기
-function closeShareModal() {
-    document.getElementById("shareModal").style.display = "none"; 
-}
-// ✅ ESC 키로 공유 모달 닫기
-document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
-        closeShareModal();
-    }
-});
+// function openShareModal(webLinkId) {
+//     let shareModal = document.getElementById("shareModal");
+//     shareModal.style.display = "block"; // ✅ 모달 표시
+//     document.getElementById("searchUserInput").dataset.webLinkId = webLinkId; // ✅ 공유할 웹 링크 ID 저장
+//     fetchUsers(webLinkId); // ✅ 사용자 목록 불러오기
+// }
+// // ✅ 공유 모달 닫기
+// function closeShareModal() {
+//     document.getElementById("shareModal").style.display = "none"; 
+// }
+// // ✅ ESC 키로 공유 모달 닫기
+// document.addEventListener("keydown", function (event) {
+//     if (event.key === "Escape") {
+//         closeShareModal();
+//     }
+// });
 
 // ✅ 사용자 검색 기능 (이메일 또는 이름으로 검색 가능)
-function searchUsers() {
-    let input = document.getElementById("searchUserInput").value.toLowerCase();
-    let userList = document.getElementById("userList");
-    let users = document.querySelectorAll("#userList li");
+// function searchUsers() {
+//     let input = document.getElementById("searchUserInput").value.toLowerCase();
+//     let userList = document.getElementById("userList");
+//     let users = document.querySelectorAll("#userList li");
+
+//     let hasResults = false;
+
+//     users.forEach(user => {
+//         let userText = (user.dataset.username || "").toLowerCase();
+//         let userNameText = (user.dataset.name || "").toLowerCase();
+//         let userEmailText = (user.dataset.email || "").toLowerCase();
+
+//         if (
+//             userText.includes(input) ||
+//             userNameText.includes(input) ||
+//             userEmailText.includes(input)
+//         ) {
+//             user.style.display = "block";
+//             hasResults = true;
+
+//             // ✅ 기존 이벤트 제거 후 다시 추가
+//             user.onclick = null;
+//             user.onclick = function () {
+//                 let selectedUserId = parseInt(user.dataset.userId);
+//                 console.log(`📢 [DEBUG] 검색 후 선택된 사용자 - userId: ${selectedUserId}, username: ${user.dataset.username}`);
+
+//                 // ✅ 선택된 userId를 searchUserInput에 저장
+//                 document.getElementById("searchUserInput").dataset.selectedUserId = selectedUserId;
+
+//                 shareWebLink(parseInt(document.getElementById("searchUserInput").dataset.webLinkId), selectedUserId);
+//             };
+//         } else {
+//             user.style.display = "none";
+//         }
+//     });
+
+//     if (input.length > 0 && hasResults) {
+//         userList.style.display = "block";
+//     } else {
+//         userList.style.display = "none";
+//     }
+// }
+
+function searchWebLinks() {
+    let input = document.getElementById("searchWebLinksInput").value.toLowerCase();
+    let links = document.querySelectorAll("#webLinkList li");
 
     let hasResults = false;
 
-    users.forEach(user => {
-        let userText = (user.dataset.username || "").toLowerCase();
-        let userNameText = (user.dataset.name || "").toLowerCase();
-        let userEmailText = (user.dataset.email || "").toLowerCase();
+    links.forEach(link => {
+        let name = link.querySelector("strong").textContent.toLowerCase();
+        let category = link.textContent.toLowerCase(); // 전체 텍스트에서 카테고리 포함 여부 확인
 
-        if (
-            userText.includes(input) ||
-            userNameText.includes(input) ||
-            userEmailText.includes(input)
-        ) {
-            user.style.display = "block";
+        if (name.includes(input) || category.includes(input)) {
+            link.style.display = "flex"; // ✅ 검색 결과 포함되면 표시
             hasResults = true;
-
-            // ✅ 기존 이벤트 제거 후 다시 추가
-            user.onclick = null;
-            user.onclick = function () {
-                let selectedUserId = parseInt(user.dataset.userId);
-                console.log(`📢 [DEBUG] 검색 후 선택된 사용자 - userId: ${selectedUserId}, username: ${user.dataset.username}`);
-
-                // ✅ 선택된 userId를 searchUserInput에 저장
-                document.getElementById("searchUserInput").dataset.selectedUserId = selectedUserId;
-
-                shareWebLink(parseInt(document.getElementById("searchUserInput").dataset.webLinkId), selectedUserId);
-            };
         } else {
-            user.style.display = "none";
+            link.style.display = "none"; // ❌ 포함되지 않으면 숨김
         }
     });
 
-    if (input.length > 0 && hasResults) {
-        userList.style.display = "block";
-    } else {
-        userList.style.display = "none";
+    // ✅ 검색어가 없을 경우 전체 목록 다시 표시
+    if (input.trim() === "") {
+        links.forEach(link => {
+            link.style.display = "flex";
+        });
     }
 }
-
 
 
 // ✅ 웹 링크 공유 기능
@@ -318,28 +342,31 @@ function fetchSharedWebLinks() {
 
             data.shared_links.forEach(link => {
                 let li = document.createElement("li");
+                li.classList.add("shared-web-link");  // ✅ 스타일이 적용되도록 확인
 
-                // 🔹 기본 HTML 구조 (수정 버튼은 권한이 "write"일 때만 표시)
                 li.innerHTML = `
-                    <strong>${link.name}</strong> - 
-                    <a href="${link.url}" target="_blank">${link.url}</a> 
-                    (${link.category}) | 공유한 사용자: ${link.shared_by}
+                    <div class="web-link-info">
+                        <strong>${link.name}</strong> - 
+                        <a href="${link.url}" target="_blank">${link.url}</a> 
+                        <span class="shared-by">| 공유한 사용자: ${link.shared_by}</span>
+                    </div>
+                    <div class="web-link-buttons">
+                        ${link.permission === "write" ? `
+                            <button class="edit-btn" onclick="openSharedEditModal('${link.id}')" data-permission="${link.permission}">
+                                수정
+                            </button>
+                        ` : ''}
+                    </div>
                 `;
-
-                // ✅ "쓰기" 권한이 있는 경우 수정 버튼 추가
-                if (link.permission === "write") {
-                    li.innerHTML += `
-                        <button class="edit-shared-btn" onclick="openSharedEditModal('${link.id}')" data-permission="${link.permission}">
-                            수정
-                        </button>
-                    `;
-                }
 
                 sharedWebLinkList.appendChild(li);
             });
         })
         .catch(error => console.error("❌ 공유 웹 링크 불러오기 실패:", error));
 }
+
+
+
 
 
 
@@ -402,6 +429,14 @@ function openShareModal(webLinkId) {
 }
 
 
+// ✅ ESC 키로 공유받은 웹 링크 수정 모달 닫기
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeSharedEditModal();
+    }
+});
+
+
 // ✅ ESC 키로 전체 공유 모달 닫기
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
@@ -414,13 +449,21 @@ function closeShareAllModal() {
     document.getElementById("shareAllModal").style.display = "none";
 }
 
-// ✅ 사용자 검색 기능 (이메일 또는 이름으로 검색 가능)
 function searchAllUsers() {
     let input = document.getElementById("searchAllUserInput").value.toLowerCase();
     let userList = document.getElementById("allUserList");
     let users = document.querySelectorAll("#allUserList li");
 
     let hasResults = false;
+
+    // ✅ 검색어가 비어 있으면 리스트를 지우고 초기화 (다시 불러오기)
+    if (input.length === 0) {
+        userList.innerHTML = ""; // 목록 초기화
+        userList.style.display = "none";
+        fetchAllUsers(); // 사용자 목록 다시 불러오기
+        return;
+    }
+
     users.forEach(user => {
         let userText = user.dataset.username.toLowerCase();
         let userNameText = user.dataset.name.toLowerCase();
@@ -438,9 +481,11 @@ function searchAllUsers() {
         }
     });
 
-    // ✅ 검색 결과가 있을 때만 리스트 보이도록 수정
+    // ✅ 검색 결과가 있으면 리스트 표시
     userList.style.display = hasResults ? "block" : "none";
 }
+
+
 
 
 // ✅ 모든 사용자 목록 불러오기

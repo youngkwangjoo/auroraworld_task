@@ -3,22 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <title>회원가입</title>
+    <style>
+        /* ✅ 전체 스타일 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* ✅ 배경 스타일 */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        /* ✅ 회원가입 카드 스타일 */
+        .auth-container {
+            width: 350px;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* ✅ 제목 스타일 */
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* ✅ 입력 필드 스타일 */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* ✅ 버튼 스타일 */
+        .auth-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .auth-btn:hover {
+            background-color: #218838;
+        }
+
+        /* ✅ 에러 메시지 스타일 */
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* ✅ 로그인/회원가입 전환 링크 */
+        .switch-page {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .switch-page a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .switch-page a:hover {
+            text-decoration: underline;
+        }
+
+        /* ✅ 반응형 (모바일 최적화) */
+        @media (max-width: 400px) {
+            .auth-container {
+                width: 90%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>회원가입</h2>
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color: red;">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-    <form method="POST">
-        {% csrf_token %}
-        <label>아이디:</label> <input type="text" name="username" required><br>
-        <label>이메일:</label> <input type="email" name="email" required><br>
-        <label>이름:</label> <input type="text" name="name" required><br>
-        <label>비밀번호:</label> <input type="password" name="password" required><br>
-        <button type="submit">회원가입</button>
-    </form>
-    <p><a href="{% url 'signup' %}">로그인</a></p>
+    <div class="auth-container">
+        <h2>회원가입</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="error-message">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+                <label>아이디</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="input-group">
+                <label>이메일</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label>이름</label>
+                <input type="text" name="name" required>
+            </div>
+            <div class="input-group">
+                <label>비밀번호</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="auth-btn">회원가입</button>
+        </form>
+
+        <p class="switch-page">이미 계정이 있나요? <a href="{% url 'signin' %}">로그인</a></p>
+    </div>
 </body>
 </html>
