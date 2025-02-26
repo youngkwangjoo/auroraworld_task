@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import signup_view, signin_view, logout_view, protected_view, auroramain_view, search_users, all_users
+from .views import signup_view, signin_view, logout_view, protected_view, auroramain_view, search_users, all_users,  refresh_token_view
 
 urlpatterns = [
     path("signup/", signup_view, name="signup"),  # 회원가입
@@ -10,5 +10,5 @@ urlpatterns = [
     path("search/", search_users, name="search_users"),  # ✅ 친구 찾기 API 추가
     path("all_users/", all_users, name="all_users"),  
     path("search_users/", search_users, name="search_users"),
-    
+    path("refresh/",  refresh_token_view, name=" refresh_token_view"),
 ]

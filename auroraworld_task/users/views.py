@@ -13,14 +13,37 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser  # ✅ 중복 import 정리
 from feedmanager.models import WebLink
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+
+def logout_view(request):
+    """ ✅ 로그아웃 시 JWT 블랙리스트에 추가 후 삭제 """
+    refresh_token = request.COOKIES.get("refresh_token")
+    if refresh_token:
+        try:
+            token = RefreshToken(refresh_token)
+            BlacklistedToken.objects.get_or_create(token=token)
+        except Exception as e:
+            print(f"🔴 블랙리스트 등록 실패: {e}")
+
+    response = redirect("signin")
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return response
+
+
 
 def get_tokens_for_user(user):
-    """ ✅ JWT 액세스 및 리프레시 토큰 생성 """
+    """ ✅ JWT 액세스 및 리프레시 토큰 생성 (username 포함) """
     refresh = RefreshToken.for_user(user)
+
+    # ✅ 커스텀 클레임 추가
+    refresh["username"] = user.username  
+
     return {
         "refresh": str(refresh),
         "access": str(refresh.access_token),
     }
+
 
 def signup_view(request):
     """ ✅ 회원가입 뷰 """
@@ -54,9 +77,7 @@ def signin_view(request):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
-
-            # ✅ JWT 토큰 생성
+            # ✅ JWT 토큰 생성 (username 포함)
             tokens = get_tokens_for_user(user)
 
             response = redirect("auroramain")
@@ -72,6 +93,8 @@ def signin_view(request):
 
     return render(request, "users/signin.html")
 
+
+
 @api_view(["GET"])
 def protected_view(request):
     """ ✅ JWT 쿠키 인증이 필요한 보호된 API """
@@ -81,18 +104,15 @@ def protected_view(request):
 
     try:
         decoded_token = jwt.decode(token, settings.SIMPLE_JWT["SIGNING_KEY"], algorithms=["HS256"])
-        return JsonResponse({"message": "인증 성공!", "username": decoded_token["username"]})
+        user_id = decoded_token.get("user_id")
+        user = CustomUser.objects.get(id=user_id)
+        return JsonResponse({"message": "인증 성공!", "username": user.username})
     except jwt.ExpiredSignatureError:
         return JsonResponse({"error": "토큰이 만료되었습니다."}, status=401)
     except jwt.InvalidTokenError:
         return JsonResponse({"error": "유효하지 않은 토큰입니다."}, status=401)
 
-def logout_view(request):
-    """ ✅ 로그아웃 시 JWT 쿠키 삭제 후 로그인 페이지로 이동 """
-    response = redirect("signin")
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
-    return response
+
 
 def auroramain_view(request):
     """ ✅ Aurora Main 페이지 (JWT 토큰 없으면 로그인 페이지로 이동) """
@@ -111,23 +131,24 @@ def auroramain_view(request):
     except jwt.InvalidTokenError:
         return redirect("signin")
 
-@login_required
+
+@api_view(["GET"])
 def search_users(request):
     """ ✅ 사용자 검색 API (username 기본 검색, name 및 email도 가능) """
-    query = request.GET.get("query", "").strip()  # 검색어 가져오기
+    query = request.GET.get("query", "").strip()
 
     if not query:
-        return JsonResponse({"users": []})  # 검색어 없으면 빈 리스트 반환
+        return JsonResponse({"users": []})
 
     users = CustomUser.objects.filter(
-        Q(username__icontains=query) |  # ✅ username 기준 검색 (기본)
-        Q(name__icontains=query) |  # ✅ name 검색
-        Q(email__icontains=query)   # ✅ email 검색
+        Q(username__icontains=query) |
+        Q(name__icontains=query) |
+        Q(email__icontains=query)
     ).values("id", "username", "name", "email")
 
     return JsonResponse({"users": list(users)})
 
-@login_required
+@api_view(["GET"])
 def all_users(request):
     """ ✅ 사용자 목록을 JSON 형식으로 반환 """
     users = CustomUser.objects.values("id", "username", "name", "email")
@@ -140,3 +161,35 @@ def all_users(request):
         for user in users
     ]
     return JsonResponse({"users": user_list})
+
+@api_view(["POST"])
+def refresh_token_view(request):
+    refresh_token = request.COOKIES.get("refresh_token")
+    if not refresh_token:
+        return JsonResponse({"error": "리프레시 토큰이 없습니다."}, status=401)
+
+    try:
+        refresh = RefreshToken(refresh_token)
+        new_access_token = str(refresh.access_token)
+
+        response = JsonResponse({"access_token": new_access_token})
+        response.set_cookie("access_token", new_access_token, httponly=True, secure=True, samesite="Lax")  
+        return response
+    except Exception as e:
+        return JsonResponse({"error": "유효하지 않은 리프레시 토큰입니다."}, status=401)
+
+
+def logout_view(request):
+    """ ✅ 로그아웃 시 JWT 블랙리스트에 추가 후 삭제 """
+    refresh_token = request.COOKIES.get("refresh_token")
+    if refresh_token:
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # ✅ 블랙리스트 등록
+        except Exception as e:
+            print(f"🔴 블랙리스트 등록 실패: {e}")
+
+    response = redirect("signin")
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return response
