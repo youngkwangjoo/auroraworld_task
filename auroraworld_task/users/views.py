@@ -15,22 +15,6 @@ from feedmanager.models import WebLink
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
-def logout_view(request):
-    """ ✅ 로그아웃 시 JWT 블랙리스트에 추가 후 삭제 """
-    refresh_token = request.COOKIES.get("refresh_token")
-    if refresh_token:
-        try:
-            token = RefreshToken(refresh_token)
-            BlacklistedToken.objects.get_or_create(token=token)
-        except Exception as e:
-            print(f"🔴 블랙리스트 등록 실패: {e}")
-
-    response = redirect("signin")
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
-    return response
-
-
 
 def get_tokens_for_user(user):
     """ ✅ JWT 액세스 및 리프레시 토큰 생성 (username 포함) """
@@ -180,16 +164,9 @@ def refresh_token_view(request):
 
 
 def logout_view(request):
-    """ ✅ 로그아웃 시 JWT 블랙리스트에 추가 후 삭제 """
-    refresh_token = request.COOKIES.get("refresh_token")
-    if refresh_token:
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()  # ✅ 블랙리스트 등록
-        except Exception as e:
-            print(f"🔴 블랙리스트 등록 실패: {e}")
-
-    response = redirect("signin")
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
+    """ ✅ 로그아웃 시 쿠키 삭제 """
+    response = redirect("signin")  # 로그아웃 후 로그인 페이지로 이동
+    response.delete_cookie("access_token")  # 액세스 토큰 삭제
+    response.delete_cookie("refresh_token")  # 리프레시 토큰 삭제
     return response
+

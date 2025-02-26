@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'feedmanager',
     'users',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

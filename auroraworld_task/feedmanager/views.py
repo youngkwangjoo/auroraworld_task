@@ -8,10 +8,11 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from .models import WebLink, SharedWebLink
 from django.views.decorators.http import require_http_methods
+from users.decorators import jwt_required 
 
 
 @csrf_exempt
-@login_required
+@jwt_required
 def add_weblink(request):
     """ ✅ 웹 링크 등록 API """
     if request.method == "POST":
@@ -52,7 +53,7 @@ def add_weblink(request):
 
 
 
-@login_required
+@jwt_required
 def my_weblinks(request):
     """ ✅ 로그인한 사용자가 등록한 웹 링크 목록 반환 """
     user = request.user  # 현재 로그인한 사용자
@@ -60,14 +61,14 @@ def my_weblinks(request):
 
     return JsonResponse({"weblinks": list(weblinks)})
 
-@login_required
+@jwt_required
 def all_links_view(request):
     """ ✅ 전체 웹 링크 목록 페이지 렌더링 """
     return render(request, "all_links.html", {"username": request.user.username})
 
 
 @csrf_exempt
-@login_required
+@jwt_required
 def edit_weblink(request, pk):  # pk 인자 추가
     """ 웹 링크 수정 API """
     if request.method != "PUT":
@@ -108,7 +109,7 @@ def delete_weblink(request, pk):
         return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
 
 @csrf_exempt
-@login_required
+@jwt_required
 def share_weblink(request):
     """ ✅ 웹 링크 공유 API (읽기/쓰기 권한 부여) """
     if request.method == "POST":
@@ -243,7 +244,7 @@ def update_permission(request):
 
     return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
 
-@login_required
+@jwt_required
 def get_shared_weblink(request, web_link_id):
     """ ✅ 공유받은 특정 웹 링크 정보를 반환하는 API (web_link_id 기준) """
     shared_link = get_object_or_404(SharedWebLink, web_link__id=web_link_id, recipient=request.user)
