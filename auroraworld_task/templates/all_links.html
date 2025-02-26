@@ -7,84 +7,115 @@
     <link rel="stylesheet" href="{% static 'css/weblinks.css' %}">
 </head>
 <body>
+
+    <!-- ✅ 상단 바 -->
     <div class="top-bar">
+        <button class="search-btn" onclick="location.href='/users/auroramain/'">뒤로 가기</button>
         <span class="username">{{ username }}</span>
         <button class="logout-btn" onclick="location.href='/users/logout/'">로그아웃</button>
+
     </div>
 
-    <h1 class="title">나의 웹링크 피드</h1>
-        <button id="shareAllBtn" class="blue-button">전체 공유</button>
-    <div class="feed-box">
-        <!-- ✅ 검색 박스 추가 -->
-        <input type="text" id="searchWebLinksInput" placeholder="웹 링크 검색 (이름, 카테고리)" onkeyup="searchWebLinks()">
-        <ul id="webLinkList"></ul> 
+    <h1 class="title">나의 웹 링크 피드</h1>
+
+    <!-- ✅ 웹 링크 피드 & 공유받은 웹 링크 가로 배치 -->
+    <div class="weblink-container">
+        <!-- ✅ 나의 웹 링크 피드 -->
+        <div class="weblink-section">
+<!-- ✅ "전체 공유" 버튼 옆에 "등록하기" 버튼 추가 -->
+            <div class="feed-header">
+                <h2>나의 웹 링크</h2>
+                <div class="button-group">
+                    <button id="shareAllBtn" class="share-btn">공유하기</button>
+                    <button id="addWebLinkBtn" class="add-btn">등록하기</button> <!-- ✅ 초록색 버튼 -->
+                </div>
+            </div>
+            <input type="text" id="searchWebLinksInput" class="search-box" placeholder="웹 링크 검색 (이름, 카테고리)" onkeyup="searchWebLinks()">
+            <ul id="webLinkList" class="web-link-list">
+                {% for link in weblinks %}
+                <li class="web-link-item">
+                    <div class="web-link-info">
+                        <strong>{{ link.name }}</strong> - 
+                        <a href="{{ link.url }}" target="_blank">{{ link.url }}</a> 
+                        (<span class="category">{{ link.category }}</span>)  <!-- ✅ 검색 가능하도록 클래스 추가 -->
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- ✅ 공유받은 웹 링크 목록 -->
+        <div class="weblink-section">
+            <h2>공유받은 웹 링크</h2>
+            <ul id="sharedWebLinkList" class="web-link-list"></ul>
+        </div>
     </div>
 
-    <!-- ✅ 공유받은 웹 링크 목록 추가 -->
-    <h2>다른 사람에게 공유받은 웹 링크</h2>
-    <div id="sharedFeedBox" class="feed-box"> 
-
-        <ul id="sharedWebLinkList"></ul>
+    <!-- ✅ 웹 링크 등록 모달 -->
+    <div id="addWebLinkModal" class="modal">
+        <div class="modal-content">
+            <h2>웹 링크 등록</h2>
+            <input type="text" id="webLinkName" placeholder="웹 링크 이름">
+            <input type="text" id="webLinkUrl" placeholder="웹 링크 URL">
+            <select id="webLinkCategory">
+                <option value="개인 즐겨찾기">개인 즐겨찾기</option>
+                <option value="업무 활용 자료">업무 활용 자료</option>
+                <option value="참고 자료">참고 자료</option>
+                <option value="교육 및 학습 자료">교육 및 학습 자료</option>
+                <option value="기타">기타</option>
+            </select>
+            <div class="button-group">
+                <button class="add-btn" onclick="addWebLink()">등록</button>
+                <button class="close-btn" onclick="closeAddWebLinkModal()">닫기</button>
+            </div>
+        </div>
     </div>
-    
-    
+
+
     <!-- ✅ 공유받은 웹 링크 수정 모달 -->
-    <div id="sharedEditModal" class="modal" style="display: none;">
+    <div id="sharedEditModal" class="modal">
         <div class="modal-content">
             <h2>공유받은 웹 링크 수정</h2>
             <input type="hidden" id="sharedEditWebLinkId">
             <input type="text" id="sharedEditWebLinkName" placeholder="웹 링크 이름">
             <input type="text" id="sharedEditWebLinkUrl" placeholder="웹 링크 URL">
-            <button class="edit-btn" onclick="updateSharedWebLink()">수정</button>
-            <button class="close-btn" onclick="closeSharedEditModal()">닫기</button>
+            <div class="button-group">
+                <button class="edit-btn" onclick="updateSharedWebLink()">수정</button>
+                <button class="close-btn" onclick="closeSharedEditModal()">닫기</button>
+            </div>
         </div>
     </div>
-
-
 
     <!-- ✅ 전체 공유 모달 -->
     <div id="shareAllModal" class="modal">
         <div class="modal-content">
             <h3>전체 공유할 사용자 선택</h3>
-            
             <label for="permissionSelect">권한:</label>
             <select id="permissionSelect" class="permission-select">
                 <option value="read">읽기</option>
                 <option value="write">쓰기</option>
             </select>
-            
-            <!-- ✅ 사용자 검색 입력 -->
             <input type="text" id="searchAllUserInput" placeholder="이름, 이메일, ID 검색" onkeyup="searchAllUsers()">
-
-            <!-- ✅ 검색 결과 -->
             <ul id="allUserList" style="display: none;"></ul>
-
         </div>
     </div>
 
 
-    
-    <button class="search-btn" onclick="location.href='/users/auroramain/'">뒤로 가기</button>
 
     <!-- ✅ 개별 웹 링크 공유 모달 -->
     <div id="shareModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeShareModal()">&times;</span>
             <h2>웹 링크 공유</h2>
-
-            <!-- ✅ 드롭다운 추가 -->
             <label for="sharePermission">권한 선택:</label>
             <select id="sharePermission">
                 <option value="read">읽기</option>
                 <option value="write">쓰기</option>
             </select>
-
-            <!-- ✅ 사용자 검색 입력 -->
             <input type="text" id="searchUserInput" placeholder="이메일 또는 이름으로 검색" onkeyup="searchUsers()">
-            <ul id="userList" style="display: none;"></ul> <!-- ✅ 기본적으로 숨김 -->
+            <ul id="userList" style="display: none;"></ul>
         </div>
     </div>
-
 
     <!-- ✅ 수정 모달 -->
     <div id="editModal" class="modal">
@@ -93,8 +124,10 @@
             <input type="hidden" id="editWebLinkId">
             <input type="text" id="editWebLinkName" placeholder="웹 링크 이름">
             <input type="text" id="editWebLinkUrl" placeholder="웹 링크 URL">
-            <button class="edit-btn" onclick="updateWebLink()">수정</button>
-            <button class="close-btn" onclick="closeEditModal()">닫기</button>
+            <div class="button-group">
+                <button class="edit-btn" onclick="updateWebLink()">수정</button>
+                <button class="close-btn" onclick="closeEditModal()">닫기</button>
+            </div>
         </div>
     </div>
 

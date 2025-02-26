@@ -31,7 +31,7 @@ function createWebLinkItem(link) {
             <div class="web-link-info">
                 <strong>${link.name}</strong> - 
                 <a href="${link.url}" target="_blank">${link.url}</a> 
-                (${link.category})
+                (<span class="category">${link.category}</span>) <!-- ✅ span 태그 추가 -->
             </div>
             <div class="web-link-buttons">
                 <button class="edit-btn" onclick="openEditModal(${link.id}, '${link.name}', '${link.url}')">수정</button>
@@ -41,16 +41,105 @@ function createWebLinkItem(link) {
     `;
 }
 
+
 /* ==========================================
     ✅ 웹 링크 검색 기능
 ========================================== */
 function searchWebLinks() {
-    let input = document.getElementById("searchWebLinksInput").value.toLowerCase();
+    let input = document.getElementById("searchWebLinksInput").value.trim().toLowerCase();
+
+    // ✅ 카테고리 변환 테이블 (하드코딩)
+    const CATEGORY_MAP = {
+        "personal": "개인 즐겨찾기",
+        "work": "업무 활용 자료",
+        "reference": "참고 자료",
+        "education": "교육 및 학습 자료",
+        "other": "기타"
+    };
+
     document.querySelectorAll("#webLinkList li").forEach(link => {
-        let name = link.querySelector("strong").textContent.toLowerCase();
-        link.style.display = name.includes(input) ? "flex" : "none";
+        let name = link.querySelector("strong").textContent.trim().toLowerCase();
+        let categoryElement = link.querySelector(".category");
+        let categoryKey = categoryElement ? categoryElement.textContent.trim().toLowerCase() : "";
+        let categoryName = Object.values(CATEGORY_MAP).find(c => c.includes(categoryKey)) || categoryKey;
+
+        if (name.includes(input) || categoryName.includes(input)) {
+            link.style.display = "flex";
+        } else {
+            link.style.display = "none";
+        }
     });
 }
+/* ==========================================
+    ✅ 웹 링크 등록 기능
+========================================== */
+// ✅ "등록하기" 버튼 클릭 이벤트 추가
+document.addEventListener("DOMContentLoaded", function () {
+    let addWebLinkBtn = document.getElementById("addWebLinkBtn");
+    if (addWebLinkBtn) {
+        addWebLinkBtn.addEventListener("click", openAddWebLinkModal);
+    }
+});
+
+// ✅ 웹 링크 등록 모달 열기
+function openAddWebLinkModal() {
+    let modal = document.getElementById("addWebLinkModal");
+    if (modal) {
+        modal.style.display = "block";
+    }
+}
+
+// ✅ 웹 링크 등록하기
+function addWebLink() {
+    let nameInput = document.getElementById("webLinkName").value.trim();
+    let urlInput = document.getElementById("webLinkUrl").value.trim();
+    let categoryInput = document.getElementById("webLinkCategory").value;
+
+    if (!nameInput || !urlInput) {
+        alert("웹 링크 이름과 URL을 입력하세요!");
+        return;
+    }
+
+    fetch("/feedmanager/add/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({
+            name: nameInput,
+            url: urlInput,
+            category: categoryInput
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert("등록 실패: " + data.error);
+        } else {
+            alert("✅ 웹 링크가 등록되었습니다!");
+            closeAddWebLinkModal();
+            fetchWebLinks(); // 등록 후 웹 링크 목록 새로고침
+        }
+    })
+    .catch(error => console.error("❌ 등록 중 오류 발생:", error));
+}
+
+// ✅ ESC 키로 등록 모달 닫기
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeAddWebLinkModal();
+    }
+});
+
+// ✅ 웹 링크 등록 모달 닫기 함수
+function closeAddWebLinkModal() {
+    let modal = document.getElementById("addWebLinkModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
 
 /* ==========================================
     ✅ 웹 링크 수정 기능
@@ -62,9 +151,23 @@ function openEditModal(id, name, url) {
     document.getElementById("editModal").style.display = "block";
 }
 
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        let editModal = document.getElementById("editModal");
+        if (editModal && editModal.style.display === "block") {
+            closeEditModal();
+        }
+    }
+});
+
+// ✅ 기존 closeEditModal() 함수 활용
 function closeEditModal() {
-    document.getElementById("editModal").style.display = "none";
+    let modal = document.getElementById("editModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
 }
+
 
 function updateWebLink() {
     let id = document.getElementById("editWebLinkId").value;
@@ -317,7 +420,7 @@ window.highlightSelection = highlightSelection;
 
 
 /* ==========================================
-    ✅ 공유받은 웹 링크 수정 기능 (오류 해결 버전)
+    ✅ 공유받은 웹 링크 수정 기능 
 ========================================== */
 // ✅ 공유받은 웹 링크 수정 모달 열기
 function openSharedEditModal(webLinkId) {

@@ -1,4 +1,7 @@
-/* 전체 스타일 */
+/* ============================================= */
+/* ✅ 1. 공통 스타일 */
+/* ============================================= */
+
 * {
     margin: 0;
     padding: 0;
@@ -10,10 +13,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
     background-color: #f8f9fa;
 }
+
+/* ============================================= */
+/* ✅ 2. 레이아웃 및 컨테이너 스타일 */
+/* ============================================= */
 
 /* 상단 바 */
 .top-bar {
@@ -30,15 +35,6 @@ body {
     margin-right: 10px;
 }
 
-.logout-btn {
-    padding: 5px 10px;
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 /* 제목 스타일 */
 .title {
     font-size: 28px;
@@ -47,26 +43,74 @@ body {
     color: #333;
 }
 
-/* ✅ 웹 링크 리스트 박스 */
-.feed-box {
-    width: 70%;
-    min-width: 400px;
-    max-width: 90%;
-    padding: 20px;
+/* ✅ 웹 링크 피드 컨테이너 (가로 배치) */
+.weblink-container {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* ✅ 웹 링크 피드 & 공유받은 웹 링크 스타일 */
+.weblink-section {
+    flex: 1; /* 두 개의 섹션이 같은 크기를 가지도록 설정 */
     background-color: white;
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-height: 500px; /* 최대 높이 설정 */
+    overflow-y: auto; /* 내용이 많아지면 스크롤 */
 }
 
-/* ✅ 웹 링크 항목 리스트 */
-#webLinkList {
-    width: 100%;
-    list-style-type: none;
-    padding: 0;
+/* ✅ 검색창과 전체 공유 버튼을 가로 배치 */
+.feed-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
 }
+
+/* ✅ 리스트 스타일 */
+.web-link-list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    width: 100%;
+}
+
+/* ✅ 리스트 항목 스타일 */
+.web-link-item,
+.shared-web-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.web-link-item:hover, .shared-web-link:hover {
+    background: #eee;
+}
+/* ✅ 공유받은 웹 링크도 동일한 스타일 적용 */
+.shared-web-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ✅ 링크 목록이 너무 길어질 경우 스크롤 */
+.weblink-section {
+    flex: 1;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* ============================================= */
+/* ✅ 3. 버튼 및 입력 필드 스타일 */
+/* ============================================= */
 
 /* ✅ 버튼 공통 스타일 */
 button {
@@ -80,36 +124,86 @@ button {
 }
 
 /* ✅ 버튼 색상 */
-.add-btn { background-color: #4CAF50; }  /* 초록색 (등록 버튼) */
-.search-btn { background-color: #007BFF; }  /* 파란색 (검색 버튼) */
-.edit-btn { background-color: #FFA500; }  /* 주황색 (수정 버튼) */
-.delete-btn { background-color: #DC3545; }  /* 빨간색 (삭제 버튼) */
+.add-btn { background-color: #4CAF50; }  /* 초록색 */
+.search-btn { background-color: #007BFF; }  /* 파란색 */
+.edit-btn { background-color: #FFA500; }  /* 주황색 */
+.delete-btn { background-color: #DC3545; }  /* 빨간색 */
 .close-btn { background-color: #ff4d4d; }  /* 닫기 버튼 */
 
 /* ✅ 버튼 hover 효과 */
-.edit-btn:hover { background-color: #FF8C00; }  /* 어두운 주황색 */
-.delete-btn:hover { background-color: #C82333; }  /* 어두운 빨간색 */
+.edit-btn:hover { background-color: #FF8C00; }  
+.delete-btn:hover { background-color: #C82333; }  
 
-/* ✅ 모달 스타일 */
+/* ✅ 전체 공유 버튼 스타일 */
+#shareAllBtn {
+    background-color: #007bff; /* 🔹 파란색 */
+    color: white;
+    font-size: 16px;
+    padding: 12px 20px; /* ✅ 버튼 크기 증가 */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    /* ✅ 위아래 여백 추가 */
+    margin: 20px 0;
+    display: block; /* ✅ 중앙 정렬을 위해 block 처리 */
+}
+
+/* ✅ 버튼 hover 효과 */
+#shareAllBtn:hover {
+    background-color: #0056b3; /* 🔹 더 진한 파란색 */
+}
+
+
+/* ✅ 검색 입력창 */
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* ✅ 리스트 마커 제거 */
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+/* ============================================= */
+/* ✅ 4. 모달 스타일 */
+/* ============================================= */
+
+/* ✅ 모달 기본 스타일 */
 .modal {
     display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
+    position: fixed; /* 화면 고정 */
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.4);
+    transform: translate(-50%, -50%); /* 가운데 정렬 */
 }
 
+/* ✅ 모달 내부 스타일 */
 .modal-content {
+    position: absolute;  /* 부모(.modal) 기준 */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* 화면 중앙 정렬 */
     background-color: white;
-    margin: 10% auto;
     padding: 20px;
-    width: 50%;
-    text-align: center;
+    width: 400px; /* 너비 조정 */
+    max-width: 90%;
     border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
 
 /* ✅ 모달 내부 입력 필드 */
 .modal-content input {
@@ -121,6 +215,20 @@ button {
     font-size: 16px;
 }
 
+/* ✅ 닫기 버튼 */
+.close-btn {
+    background: #ddd;
+    border: none;
+    padding: 8px 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.close-btn:hover {
+    background: #bbb;
+}
+
 /* ✅ 모달 닫기 버튼 (X) */
 .close {
     position: absolute;
@@ -130,21 +238,98 @@ button {
     cursor: pointer;
     color: red;
 }
+/* ✅ 공통 버튼 스타일 (로그아웃 & 뒤로 가기 버튼) */
+.logout-btn, .search-btn {
+    padding: 5px 10px;  /* ✅ 동일한 크기 적용 */
+    font-size: 14px; /* ✅ 동일한 글자 크기 적용 */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-/* ✅ 버튼 가로 정렬 */
+/* ✅ 로그아웃 버튼 (빨간색) */
+.logout-btn {
+    background-color: #ff4d4d; /* ✅ 기존 빨간색 유지 */
+    color: white;
+}
+
+.logout-btn:hover {
+    background-color: #e04343; /* ✅ 더 어두운 빨간색 */
+}
+
+/* ✅ 뒤로 가기 버튼 (파란색) */
+.search-btn {
+    background-color: #007BFF; /* ✅ 기존 파란색 유지 */
+    color: white;
+}
+
+.search-btn:hover {
+    background-color: #0056b3; /* ✅ 더 어두운 파란색 */
+}
+
+/* 등록하기 버튼 */
+.add-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px; /* 공유 버튼과 간격 */
+}
+
+.add-btn:hover {
+    background-color: #45a049;
+}
+/* ✅ 버튼 그룹을 가로 정렬 */
 .button-group {
     display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-    width: 100%;
+    gap: 10px; /* 버튼 사이 여백 */
+    align-items: center;
 }
 
+/* ✅ 버튼 공통 스타일 */
 .button-group button {
-    flex: 1;
-    margin: 0 5px;
+    background-color: #00983d;
+    color: white;
+    font-size: 16px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 20px 0;
+    display: block;
 }
 
-/* 공유 버튼 스타일 */
+/* ✅ "전체 공유" 버튼 (파란색) */
+.share-btn {
+    background-color: #007BFF;
+    color: white;
+}
+
+/* ✅ "등록하기" 버튼 (초록색) */
+.add-btn {
+    background-color: #28582a;
+    color: white;
+}
+
+/* ✅ 버튼 호버 효과 */
+.share-btn:hover {
+    background-color: #0056b3;
+}
+
+.add-btn:hover {
+    background-color: #45a049;
+}
+
+
+/* ============================================= */
+/* ✅ 5. 웹 링크 및 공유 관련 스타일 */
+/* ============================================= */
+
+/* ✅ 공유 버튼 스타일 */
 .share-btn {
     padding: 5px 10px;
     background-color: #17a2b8;
@@ -154,7 +339,20 @@ button {
     cursor: pointer;
 }
 
-/* 공유 박스 스타일 */
+/* ✅ 공유받은 웹 링크 수정 버튼 */
+.edit-shared-btn {
+    background-color: #FFA500;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    transition: background-color 0.3s ease;
+}
+
+.edit-shared-btn:hover {
+    background-color: #FF8C00;
+}
+
+/* ✅ 공유 박스 스타일 */
 .share-box {
     display: none;
     background: #f8f9fa;
@@ -164,7 +362,7 @@ button {
     margin-top: 5px;
 }
 
-/* 검색 입력창 */
+/* ✅ 공유 박스 내부 입력창 */
 .share-box input {
     width: 80%;
     padding: 8px;
@@ -173,7 +371,7 @@ button {
     border-radius: 5px;
 }
 
-/* 사용자 리스트 스타일 */
+/* ✅ 사용자 리스트 스타일 */
 .share-box ul {
     list-style-type: none;
     padding: 0;
@@ -194,87 +392,13 @@ button {
     background-color: #e9ecef;
 }
 
-#userList li {
-    cursor: pointer;
-    padding: 8px;
-    transition: background-color 0.2s;
+/* ✅ 공유한 사용자 정보 스타일 */
+.shared-by {
+    color: #666;
+    font-size: 14px;
 }
 
-#userList li:hover {
-    background-color: #f0f0f0; /* 마우스 오버 시 연한 회색 */
-}
-
-/* ✅ 피드와 전체 공유 버튼을 가로로 배치 */
-.feed-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px; /* 🔹 피드와 버튼 사이 간격 */
-}
-
-/* ✅ 전체 공유 버튼 스타일 */
-.blue-button {
-    background-color: #007bff; /* 🔹 파란색 배경 */
-    color: white;
-    font-size: 16px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* ✅ 버튼 호버 효과 */
-.blue-button:hover {
-    background-color: #0056b3; /* 🔹 진한 파란색 */
-}
-
-/* ✅ 공유받은 웹 링크 수정 버튼 (기존 edit-btn 스타일과 동일) */
-.edit-shared-btn {
-    background-color: #FFA500; /* 주황색 */
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background-color 0.3s ease;
-}
-
-/* ✅ 마우스 호버 시 색상 변경 (기존 edit-btn과 동일) */
-.edit-shared-btn:hover {
-    background-color: #FF8C00; /* 어두운 주황색 */
-}
-
-/* ✅ 리스트 마커 제거 및 줄 간격 조정 */
-ul {
-    list-style: none; /* 목록 앞의 ●, ○ 같은 마커 제거 */
-    padding-left: 0; /* 왼쪽 기본 여백 제거 */
-}
-
-/* ✅ 개별 웹 링크 항목 스타일 조정 */
-.web-link-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 12px 0; /* 위아래 패딩 조정 */
-    border-bottom: 1px solid #ddd;
-    line-height: 1.6; /* 줄 간격 늘리기 */
-}
-
-/* ✅ 공유받은 웹 링크 항목도 동일한 스타일 적용 */
-#sharedWebLinkList li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 12px 0; /* 위아래 패딩 조정 */
-    border-bottom: 1px solid #ddd;
-    line-height: 1.6; /* 줄 간격 늘리기 */
-}
-
-/* ✅ 공유받은 웹 링크 목록의 스타일을 전체 웹 링크 목록과 동일하게 적용 */
+/* ✅ 공유받은 웹 링크 피드 박스 */
 .shared-feed-box {
     width: 70%;
     min-width: 400px;
@@ -288,46 +412,17 @@ ul {
     align-items: center;
 }
 
-/* ✅ 공유받은 웹 링크 전체를 flex로 정렬하여 양옆으로 배치 */
-.shared-web-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 12px 0; /* 위아래 패딩 조정 */
-    border-bottom: 1px solid #ddd;
-    line-height: 1.6; /* 줄 간격 늘리기 */
+/* ✅ 클릭된 사용자 음영처리 효과 */
+.highlight-selection {
+    background-color: #d3d3d3;
 }
 
-/* ✅ 왼쪽: 웹 링크 정보 */
-.web-link-info {
-    flex-grow: 1;  /* 🔥 가변 크기 조정 (남은 공간 채우기) */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    overflow: hidden;
-    word-break: break-word;
+/* ✅ 스크롤바 디자인 */
+.weblink-container::-webkit-scrollbar {
+    height: 8px;
 }
 
-/* ✅ 오른쪽: 수정 버튼 */
-.web-link-buttons {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* ✅ 공유한 사용자 정보 스타일 */
-.shared-by {
-    color: #666;
-    font-size: 14px;
-}
-
-#searchWebLinksInput {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
+.weblink-container::-webkit-scrollbar-thumb {
+    background: #aaa;
+    border-radius: 4px;
 }
