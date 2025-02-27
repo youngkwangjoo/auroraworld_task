@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ==========================================
-    ✅ 공통 fetch 함수 (GET 요청)
+    공통 fetch 함수 (GET 요청)
 ========================================== */
 function fetchData(url, callback) {
     fetch(url)
@@ -14,7 +14,7 @@ function fetchData(url, callback) {
 }
 
 /* ==========================================
-    ✅ 웹 링크 목록 불러오기
+    웹 링크 목록 불러오기
 ========================================== */
 function fetchWebLinks() {
     fetchData("/feedmanager/all_links/", data => {
@@ -43,12 +43,12 @@ function createWebLinkItem(link) {
 
 
 /* ==========================================
-    ✅ 웹 링크 검색 기능
+    웹 링크 검색 기능
 ========================================== */
 function searchWebLinks() {
     let input = document.getElementById("searchWebLinksInput").value.trim().toLowerCase();
 
-    // ✅ 카테고리 변환 테이블 (하드코딩)
+    // 카테고리 변환 테이블 (하드코딩)
     const CATEGORY_MAP = {
         "personal": "개인 즐겨찾기",
         "work": "업무 활용 자료",
@@ -71,9 +71,9 @@ function searchWebLinks() {
     });
 }
 /* ==========================================
-    ✅ 웹 링크 등록 기능
+    웹 링크 등록 기능
 ========================================== */
-// ✅ "등록하기" 버튼 클릭 이벤트 추가
+//  "등록하기" 버튼 클릭 이벤트 추가
 document.addEventListener("DOMContentLoaded", function () {
     let addWebLinkBtn = document.getElementById("addWebLinkBtn");
     if (addWebLinkBtn) {
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// ✅ 웹 링크 등록 모달 열기
+// 웹 링크 등록 모달 열기
 function openAddWebLinkModal() {
     let modal = document.getElementById("addWebLinkModal");
     if (modal) {
@@ -89,7 +89,7 @@ function openAddWebLinkModal() {
     }
 }
 
-// ✅ 웹 링크 등록하기
+// 웹 링크 등록하기
 function addWebLink() {
     let nameInput = document.getElementById("webLinkName").value.trim();
     let urlInput = document.getElementById("webLinkUrl").value.trim();
@@ -117,22 +117,22 @@ function addWebLink() {
         if (data.error) {
             alert("등록 실패: " + data.error);
         } else {
-            alert("✅ 웹 링크가 등록되었습니다!");
+            alert(" 웹 링크가 등록되었습니다!");
             closeAddWebLinkModal();
-            fetchWebLinks(); // 등록 후 웹 링크 목록 새로고침
+            fetchWebLinks(); 
         }
     })
     .catch(error => console.error("❌ 등록 중 오류 발생:", error));
 }
 
-// ✅ ESC 키로 등록 모달 닫기
+// ESC 키로 등록 모달 닫기
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
         closeAddWebLinkModal();
     }
 });
 
-// ✅ 웹 링크 등록 모달 닫기 함수
+// 웹 링크 등록 모달 닫기 함수
 function closeAddWebLinkModal() {
     let modal = document.getElementById("addWebLinkModal");
     if (modal) {
@@ -160,7 +160,7 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
-// ✅ 기존 closeEditModal() 함수 활용
+// 기존 closeEditModal() 함수 활용
 function closeEditModal() {
     let modal = document.getElementById("editModal");
     if (modal) {
@@ -194,7 +194,7 @@ function updateWebLink() {
 }
 
 /* ==========================================
-    ✅ 웹 링크 삭제
+    웹 링크 삭제
 ========================================== */
 function deleteWebLink(id) {
     if (!confirm("정말 삭제하시겠습니까?")) return;
@@ -212,7 +212,7 @@ function deleteWebLink(id) {
 }
 
 /* ==========================================
-    ✅ 공유받은 웹 링크 목록 불러오기
+    공유받은 웹 링크 목록 불러오기
 ========================================== */
 function fetchSharedWebLinks() {
     fetchData("/feedmanager/shared_links/", data => {
@@ -241,7 +241,7 @@ function createSharedWebLinkItem(link) {
 }
 
 /* ==========================================
-    ✅ 공유 모달 기능
+     공유 모달 기능
 ========================================== */
 function openShareModal(webLinkId) {
     document.getElementById("shareModal").style.display = "block";
@@ -254,9 +254,9 @@ function closeShareModal() {
 }
 
 /* ==========================================
-    ✅ 전체 공유 기능
+    전체 공유 기능
 ========================================== */
-// ✅ 전체 공유 모달 열기
+// 전체 공유 모달 열기
 function openShareAllModal() {
     let shareAllModal = document.getElementById("shareAllModal");
 
@@ -267,29 +267,29 @@ function openShareAllModal() {
 
     shareAllModal.style.display = "block";  // 모달 열기
     document.getElementById("searchAllUserInput").value = "";  // 검색 입력 초기화
-    fetchAllUsers();  // ✅ 전체 사용자 목록 불러오기
+    fetchAllUsers();  //  전체 사용자 목록 불러오기
 }
 
-// ✅ 전체 공유 모달 닫기
+//  전체 공유 모달 닫기
 function closeShareAllModal() {
     let shareAllModal = document.getElementById("shareAllModal");
     if (!shareAllModal) return;
     shareAllModal.style.display = "none";
 }
 
-// ✅ ESC 키를 누르면 모달 닫기
+//  ESC 키를 누르면 모달 닫기
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
         closeShareAllModal();
     }
 });
 
-// ✅ 전체 공유 실행 (모든 웹 링크를 특정 사용자에게 공유)
+//  전체 공유 실행 (모든 웹 링크를 특정 사용자에게 공유)
 function shareAllWebLinks(userId) {
     let confirmation = confirm("정말 모든 웹 링크를 이 사용자에게 공유하시겠습니까?");
     if (!confirmation) return;
 
-    // ✅ 선택한 권한 가져오기
+    //  선택한 권한 가져오기
     let permission = document.getElementById("permissionSelect").value;
     console.log(`📢 [DEBUG] 전체 공유 요청: recipientId = ${userId}`);
 
@@ -299,7 +299,7 @@ function shareAllWebLinks(userId) {
             "Content-Type": "application/json",
             "X-CSRFToken": getCSRFToken()
         },
-        body: JSON.stringify({ recipientId: userId, permission: permission })  // ✅ 권한 함께 전송
+        body: JSON.stringify({ recipientId: userId, permission: permission }) 
     })
     .then(response => response.json())
     .then(data => {
@@ -309,20 +309,20 @@ function shareAllWebLinks(userId) {
         } else {
             alert("✅ 모든 웹 링크가 성공적으로 공유되었습니다!");
             closeShareAllModal();
-            fetchSharedWebLinks();  // ✅ 공유받은 웹 링크 목록 새로고침
+            fetchSharedWebLinks();  
         }
     })
     .catch(error => console.error("❌ 전체 공유 중 오류 발생:", error));
 }
 
-// ✅ 모든 사용자 목록 불러오기
+//  모든 사용자 목록 불러오기
 function fetchAllUsers() {
     return fetch("/users/all_users/")
         .then(response => response.json())
         .then(data => {
             let userList = document.getElementById("allUserList");
-            userList.innerHTML = "";  // 목록 초기화
-            userList.style.display = "none";  // 기본적으로 숨김
+            userList.innerHTML = ""; 
+            userList.style.display = "none";  
 
             data.users.forEach(user => {
                 let li = document.createElement("li");
@@ -334,12 +334,9 @@ function fetchAllUsers() {
                 li.textContent = `${user.username} (${user.name}, ${user.email})`;
 
                 li.onclick = function () {
-                    console.log(`📢 [DEBUG] 선택된 사용자 - userId: ${li.dataset.userId}, username: ${li.dataset.username}`);
 
-                    // ✅ 클릭된 사용자 음영 처리
                     highlightSelection(li);
 
-                    // ✅ 선택한 사용자에게 전체 공유 실행
                     shareAllWebLinks(parseInt(li.dataset.userId));
                 };
 
@@ -349,7 +346,7 @@ function fetchAllUsers() {
         .catch(error => console.error("❌ 전체 사용자 목록 불러오기 실패:", error));
 }
 
-// ✅ 전체 사용자 검색
+// 전체 사용자 검색
 function searchAllUsers() {
     let input = document.getElementById("searchAllUserInput").value.toLowerCase();
     let userList = document.getElementById("allUserList");
@@ -357,7 +354,7 @@ function searchAllUsers() {
 
     let hasResults = false;
 
-    // ✅ 검색어가 비어 있으면 리스트를 지우고 초기화 (다시 불러오기)
+    // 검색어가 비어 있으면 리스트를 지우고 초기화 (다시 불러오기)
     if (input.length === 0) {
         userList.innerHTML = "";  // 목록 초기화
         userList.style.display = "none";
@@ -382,47 +379,47 @@ function searchAllUsers() {
         }
     });
 
-    // ✅ 검색 결과가 있으면 리스트 표시
+    // 검색 결과가 있으면 리스트 표시
     userList.style.display = hasResults ? "block" : "none";
 }
 
-// ✅ ESC 키 입력 시 전체 공유 모달 닫기
+// ESC 키 입력 시 전체 공유 모달 닫기
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
         closeShareAllModal();
     }
 });
 
-// ✅ 공유 모달 버튼 이벤트 추가
+// 공유 모달 버튼 이벤트 추가
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("shareAllBtn").addEventListener("click", openShareAllModal);
 });
 
-// ✅ window 객체에 등록 (HTML에서 `onclick`으로 호출 가능하도록)
+// window 객체에 등록 (HTML에서 `onclick`으로 호출 가능하도록)
 window.openShareAllModal = openShareAllModal;
 window.closeShareAllModal = closeShareAllModal;
 window.shareAllWebLinks = shareAllWebLinks;
 window.fetchAllUsers = fetchAllUsers;
 window.searchAllUsers = searchAllUsers;
 
-// ✅ 클릭된 사용자 음영처리 효과 (클릭 후 색상 변경)
+// 클릭된 사용자 음영처리 효과 (클릭 후 색상 변경)
 function highlightSelection(element) {
-    let originalColor = element.style.backgroundColor; // 원래 색상 저장
-    element.style.backgroundColor = "#d3d3d3"; // 클릭 시 회색 음영 처리
+    let originalColor = element.style.backgroundColor; 
+    element.style.backgroundColor = "#d3d3d3"; 
     setTimeout(() => {
-        element.style.backgroundColor = originalColor || ""; // 원래 색상으로 복귀
+        element.style.backgroundColor = originalColor || ""; 
     }, 500);
 }
 
-// ✅ window 객체에 등록 (HTML에서 onclick으로 호출 가능하도록)
+// window 객체에 등록 (HTML에서 onclick으로 호출 가능하도록)
 window.highlightSelection = highlightSelection;
 
 
 
 /* ==========================================
-    ✅ 공유받은 웹 링크 수정 기능 
+    공유받은 웹 링크 수정 기능 
 ========================================== */
-// ✅ 공유받은 웹 링크 수정 모달 열기
+// 공유받은 웹 링크 수정 모달 열기
 function openSharedEditModal(webLinkId) {
     fetch(`/feedmanager/shared_link/${webLinkId}/`)
         .then(response => response.json())
@@ -435,7 +432,7 @@ function openSharedEditModal(webLinkId) {
         .catch(error => console.error("❌ 공유된 웹 링크 데이터 불러오기 실패:", error));
 }
 
-// ✅ 공유받은 웹 링크 수정 요청 보내기
+// 공유받은 웹 링크 수정 요청 보내기
 function editSharedWebLink() {
     let webLinkId = document.getElementById("sharedEditWebLinkId").value;
     let name = document.getElementById("sharedEditWebLinkName").value.trim();
@@ -446,7 +443,7 @@ function editSharedWebLink() {
         return;
     }
 
-    fetch(`/feedmanager/update_shared_link/${webLinkId}/`, {  // ✅ URL 수정
+    fetch(`/feedmanager/update_shared_link/${webLinkId}/`, {  
         method: "PUT",
         headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
         body: JSON.stringify({ name, url })
@@ -456,7 +453,7 @@ function editSharedWebLink() {
         if (data.error) {
             alert(`❌ 수정 실패: ${data.error}`);
         } else {
-            alert("✅ 공유받은 웹 링크가 수정되었습니다!");
+            alert(" 공유받은 웹 링크가 수정되었습니다!");
             closeSharedEditModal();
             fetchSharedWebLinks();
         }
@@ -464,7 +461,7 @@ function editSharedWebLink() {
     .catch(error => console.error("❌ 공유받은 웹 링크 수정 중 오류 발생:", error));
 }
 
-// ✅ 공유받은 웹 링크 수정 모달 닫기
+// 공유받은 웹 링크 수정 모달 닫기
 function closeSharedEditModal() {
     let modal = document.getElementById("sharedEditModal");
     if (modal) {
@@ -474,21 +471,21 @@ function closeSharedEditModal() {
     }
 }
 
-// ✅ ESC 키 입력 시 공유받은 웹 링크 수정 모달 닫기
+// ESC 키 입력 시 공유받은 웹 링크 수정 모달 닫기
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
         closeSharedEditModal();
     }
 });
 
-// ✅ `window` 객체에 등록 (HTML에서 `onclick`으로 호출 가능하도록)
+// `window` 객체에 등록 (HTML에서 `onclick`으로 호출 가능하도록)
 window.openSharedEditModal = openSharedEditModal;
 window.editSharedWebLink = editSharedWebLink;
 window.closeSharedEditModal = closeSharedEditModal;
-window.updateSharedWebLink = editSharedWebLink;  // ✅ 오류 해결 (함수명 매칭)
+window.updateSharedWebLink = editSharedWebLink;  
 
 
-// ✅ 공유받은 웹 링크 수정 모달 닫기
+// 공유받은 웹 링크 수정 모달 닫기
 function closeSharedEditModal() {
     let modal = document.getElementById("sharedEditModal");
     if (modal) {
@@ -498,18 +495,18 @@ function closeSharedEditModal() {
     }
 }
 
-// ✅ ESC 키 입력 시 공유받은 웹 링크 수정 모달 닫기
+// ESC 키 입력 시 공유받은 웹 링크 수정 모달 닫기
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
         closeSharedEditModal();
     }
 });
 
-// ✅ `window` 객체에 등록 (HTML에서 `onclick`으로 호출 가능하도록)
+// `window` 객체에 등록 (HTML에서 `onclick`으로 호출 가능하도록)
 window.openSharedEditModal = openSharedEditModal;
 window.editSharedWebLink = editSharedWebLink;
 window.closeSharedEditModal = closeSharedEditModal;
-window.updateSharedWebLink = editSharedWebLink;  // ✅ 오류 해결 (함수명 매칭)
+window.updateSharedWebLink = editSharedWebLink; 
 
 
 /* ==========================================

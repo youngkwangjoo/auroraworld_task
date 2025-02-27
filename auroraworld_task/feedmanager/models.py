@@ -1,8 +1,8 @@
 from django.db import models
-from users.models import CustomUser  # 사용자 모델 import
+from users.models import CustomUser 
 
 class WebLink(models.Model):
-    """ ✅ 웹 링크 모델 """
+
     CATEGORY_CHOICES = [
         ("personal", "개인 즐겨찾기"),
         ("work", "업무 활용 자료"),
@@ -22,9 +22,9 @@ class WebLink(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.url}"
-
+    
+#웹 링크 공유 모델 
 class SharedWebLink(models.Model):
-    """ ✅ 웹 링크 공유 모델 """
     web_link = models.ForeignKey(WebLink, on_delete=models.CASCADE)
     sender = models.ForeignKey(CustomUser, related_name="sent_links", on_delete=models.CASCADE)
     recipient = models.ForeignKey(CustomUser, related_name="received_links", on_delete=models.CASCADE)
@@ -34,7 +34,7 @@ class SharedWebLink(models.Model):
     permission = models.CharField(max_length=10, choices=[("read", "읽기"), ("write", "쓰기")], default="read")
 
     class Meta:
-        unique_together = ("web_link", "recipient")  # 🔥 동일한 웹 링크 중복 공유 방지
+        unique_together = ("web_link", "recipient")  # 동일한 웹 링크 중복 공유 방지
 
     def __str__(self):
         return f"{self.sender} -> {self.recipient}: {self.web_link.name} ({self.permission})"
