@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
@@ -6,8 +7,10 @@ from django.contrib import messages
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import CustomUser
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
+from users.models import CustomUser
 
 
 def get_tokens_for_user(user):
@@ -25,40 +28,40 @@ def get_tokens_for_user(user):
         "access": str(refresh.access_token),
     }
 
-
+@csrf_exempt  # ✅ CSRF 비활성화 (API 테스트용)
 def signup_view(request):
-    """
-    회원가입을 처리하는 뷰.
-    
-    - POST 요청 시, 입력된 `username`, `email`, `name`, `password`를 기반으로 사용자 생성
-    - 아이디(username) 또는 이메일이 중복될 경우 회원가입 실패
-    - 회원가입 성공 시 로그인 페이지로 리디렉션
-    """
     if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
-        name = request.POST["name"]
-        password = request.POST["password"]
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+            email = data.get("email")
+            name = data.get("name")
+            password = data.get("password")
 
-        # 아이디 중복 검사
-        if CustomUser.objects.filter(username=username).exists():
-            messages.error(request, "이미 사용 중인 아이디입니다.")
-            return redirect("signup")
+            # ✅ 아이디 및 이메일 중복 확인
+            if CustomUser.objects.filter(username=username).exists():
+                return JsonResponse({"error": "이미 사용 중인 아이디입니다."}, status=400)
+            if CustomUser.objects.filter(email=email).exists():
+                return JsonResponse({"error": "이미 가입된 이메일입니다."}, status=400)
 
-        # 이메일 중복 검사
-        if CustomUser.objects.filter(email=email).exists():
-            messages.error(request, "이미 가입된 이메일입니다.")
-            return redirect("signup")
+            # ✅ 비밀번호 검증 (최소 길이 및 강도)
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                return JsonResponse({"error": e.messages[0]}, status=400)
 
-        # 새로운 사용자 생성 및 저장
-        user = CustomUser(username=username, email=email, name=name, password=make_password(password))
-        user.save()
+            # ✅ 사용자 생성 및 저장
+            user = CustomUser(username=username, email=email, name=name)
+            user.set_password(password)  # ✅ 비밀번호 암호화 저장
+            user.save()
 
-        messages.success(request, "회원가입이 완료되었습니다. 로그인하세요.")
-        return redirect("signin")
+            return JsonResponse({"message": "회원가입이 완료되었습니다!"}, status=201)
 
-    return render(request, "users/signup.html")  # GET 요청 시 회원가입 페이지 렌더링
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
+    # ✅ GET 요청이 들어오면 signup.html 렌더링
+    return render(request, "users/signup.html")
 
 @csrf_exempt
 def signin_view(request):
@@ -84,8 +87,7 @@ def signin_view(request):
             response.set_cookie("refresh_token", tokens["refresh"], httponly=True, secure=True, samesite="Lax")
             return response
         else:
-            messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
-            return redirect("signin")
+            return JsonResponse({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}, status=400)
 
     return render(request, "users/signin.html")  # GET 요청 시 로그인 페이지 렌더링
 
@@ -110,7 +112,7 @@ def refresh_token_view(request):
         response = JsonResponse({"access_token": new_access_token})
         response.set_cookie("access_token", new_access_token, httponly=True, secure=True, samesite="Lax")
         return response
-    except Exception as e:
+    except Exception:
         return JsonResponse({"error": "유효하지 않은 리프레시 토큰입니다."}, status=401)
 
 

@@ -218,6 +218,18 @@ ul {
     background-color: #FFA500;
     color: white;
 }
+.edit-btn-fix {
+    background-color: #FFA500;
+    color: white;
+    font-size: 16px;
+    padding: 12px 20px; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 20px 0;
+    display: block; 
+}
 .edit-btn-share {
     background-color: #FFA500;
     color: white;
@@ -236,7 +248,7 @@ ul {
 
 /* ✅ 닫기 버튼 스타일 */
 .close-btn {
-    background-color: #4CAF50;
+    background-color: #e04343;
     color: white;
     font-size: 16px;
     padding: 12px 20px; 
