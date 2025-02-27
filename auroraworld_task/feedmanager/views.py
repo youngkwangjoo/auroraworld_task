@@ -204,7 +204,7 @@ def share_all_weblinks(request):
     except Exception as e:
         return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
 
-#이미 공유한 웹링크를 수정해서 공유업데이트 할때 사용하는 함수
+#쓰기 권한을 부여받은 상대가 웹링크를 수정할 수 있게 하는 함수
 @csrf_exempt
 @jwt_required
 def update_permission(request):
@@ -228,7 +228,7 @@ def update_permission(request):
 
     return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
 
-#공유받은 웹 링크 중 하나의 정보를 조회하는 함수
+#공유받은 웹 링크 정보를 조회하는 함수
 @jwt_required
 def get_shared_weblink(request, web_link_id):
     shared_link = get_object_or_404(SharedWebLink, web_link__id=web_link_id, recipient=request.user)
